@@ -1,0 +1,36 @@
+{
+  "name": "Expense Tracker",
+  "description": "Expense Tracker is personal finance manager, built to help you save money, plan for the future, and see all your finances in one place",
+  "version": "1.0.0",
+  "launch_path": "/index.html",
+  "theme": "#ff3e00",
+  "theme_color": "#ff3e00",
+  "background_color": "#ff3e00",
+  "fullscreen": "true",
+  "chrome": {
+    "statusbar": "overlap"
+  },
+  "orientation": "default",
+  "icons": {
+    "56": "/icons/icon56x56.png",
+    "112": "/icons/icon112x112.png"
+  },
+  "categories": [
+    "utilities"
+  ],
+  "developer": {
+    "name": "arma7x",
+    "url": "https://github.com/arma7x/expense-tracker"
+  },
+  "origin": "app://expense-tracker.arma7x.com",
+  "type": "web",
+  "permissions": {},
+  "locales": {
+    "en-US": {
+      "name": "Expense Tracker",
+      "subtitle": "Expense Tracker is personal finance manager, built to help you save money, plan for the future, and see all your finances in one place",
+      "description": "Expense Tracker is personal finance manager, built to help you save money, plan for the future, and see all your finances in one place"
+    }
+  },
+  "default_locale": "en"
+}
