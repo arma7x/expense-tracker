@@ -13,6 +13,8 @@
     return {appBar, softwareKey, localization};
   }
 
+  const idbWorker = new Worker('/worker.js');
+
   onMount(() => {
     console.log('onMount', 'App');
   });
@@ -24,7 +26,7 @@
   <AppBar bind:this={appBar} />
   <main>
     <Route primary={false} path="index.html" let:location let:navigate>
-      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp}/>
+      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp} {idbWorker}/>
     </Route>
     <Route primary={false} path="/" let:location let:navigate>
       <svelte:component this="{Welcome}" {location} {navigate} {getAppProp}/>

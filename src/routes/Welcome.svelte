@@ -6,6 +6,7 @@
   export let location: any;
   export let navigate: any;
   export let getAppProp: Function;
+  export let idbWorker: Worker;
 
   let name: string = 'Welcome';
 
@@ -35,6 +36,7 @@
     appBar.setTitleText(name);
     softwareKey.setText({ left: 'LSK', center: 'DEMO', right: 'RSK' });
     navInstance.attachListener();
+    console.log(idbWorker);
   });
 
   onDestroy(() => {
