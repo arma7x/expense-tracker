@@ -1,6 +1,8 @@
 import type { DBSchema } from 'idb';
 import { openDB } from 'idb/with-async-ittr';
 
+import { IDB_EVENT } from './enums';
+
 interface ExpenseTrackerSchema extends DBSchema {
   attachments: {
     key: number,
@@ -91,3 +93,53 @@ async function init() {
 }
 
 init();
+
+self.onmessage = (e) => {
+  console.log(e.data);
+  switch (e.data.type) {
+    case IDB_EVENT.ATTACHMENT_ADD:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.ATTACHMENT_GET:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.ATTACHMENT_UPDATE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.ATTACHMENT_DELETE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+
+    case IDB_EVENT.CATEGORY_ADD:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.CATEGORY_GET:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.CATEGORY_GET_ALL:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.CATEGORY_UPDATE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.CATEGORY_DELETE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+
+    case IDB_EVENT.EXPENSE_ADD:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.EXPENSE_GET:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.EXPENSE_GET_BY_INDEX:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.EXPENSE_UPDATE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+    case IDB_EVENT.EXPENSE_DELETE:
+      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      break;
+  }
+}

@@ -1,5 +1,6 @@
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
@@ -106,8 +107,14 @@ export default [
       resolve({
         browser: true,
         dedupe: ['svelte'],
+        preferBuiltins: false,
       }),
       commonjs(),
+      nodePolyfills({
+        include: [
+          'events'
+        ]
+      }),
       typescript({
         sourceMap: !production,
         inlineSources: !production,
@@ -130,7 +137,7 @@ export default [
     },
   },
   {
-    input: 'src/idb-worker.ts',
+    input: 'src/idb-worker/index.ts',
     output: {
       sourcemap: !production,
       format: 'iife',

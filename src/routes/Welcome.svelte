@@ -2,11 +2,14 @@
   import { Route, navigate as goto } from "svelte-navigator";
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
+  import EventEmitter from 'events';
+  import { IDB_EVENT } from '../idb-worker/enums';
 
   export let location: any;
   export let navigate: any;
   export let getAppProp: Function;
   export let idbWorker: Worker;
+  export let idbWorkerEventEmitter: EventEmitter;
 
   let name: string = 'Welcome';
 
@@ -36,7 +39,17 @@
     appBar.setTitleText(name);
     softwareKey.setText({ left: 'LSK', center: 'DEMO', right: 'RSK' });
     navInstance.attachListener();
-    console.log(idbWorker);
+
+    Object.keys(IDB_EVENT).forEach(name => {
+      idbWorkerEventEmitter.addListener(name, (evt) => {
+        console.log(evt);
+      });
+    });
+    setTimeout(() => {
+      Object.keys(IDB_EVENT).forEach(name => {
+        idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+      });
+    }, 5000);
   });
 
   onDestroy(() => {

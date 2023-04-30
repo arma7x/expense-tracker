@@ -5,6 +5,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { Localization } from './utils/localization';
 
+  import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
+
   export let localization = new Localization('en-US', 'langs');
   export let appBar;
   export let softwareKey;
@@ -12,8 +14,6 @@
   export const getAppProp = () => {
     return {appBar, softwareKey, localization};
   }
-
-  const idbWorker = new Worker('/worker.js');
 
   onMount(() => {
     console.log('onMount', 'App');
@@ -26,7 +26,7 @@
   <AppBar bind:this={appBar} />
   <main>
     <Route primary={false} path="index.html" let:location let:navigate>
-      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp} {idbWorker}/>
+      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
     <Route primary={false} path="/" let:location let:navigate>
       <svelte:component this="{Welcome}" {location} {navigate} {getAppProp}/>
