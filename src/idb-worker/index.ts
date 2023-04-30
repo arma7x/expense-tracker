@@ -32,26 +32,30 @@ interface ExpenseTrackerSchema extends DBSchema {
 
 let database;
 
-async function init() {
+async function init(dbName: string) {
 
-  database = await openDB('expense-tracker', 1, {
-    upgrade(db) {
-      console.log("UPGRADE");
-      db.createObjectStore('attachments', { keyPath: 'id', autoIncrement: true });
-      db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
-      const expenses = db.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
-      expenses.createIndex('by-datetime', 'datetime');
-    },
-    blocked(currentVersion, blockedVersion, event) {
-      console.log("BLOCKED:", currentVersion, blockedVersion);
-    },
-    blocking(currentVersion, blockedVersion, event) {
-      console.log("BLOCKING:", currentVersion, blockedVersion);
-    },
-    terminated() {
-      console.log("TERMINATED");
-    },
-  });
+  try {
+    database = await openDB(dbName, 1, {
+      upgrade(db) {
+        console.log("UPGRADE");
+        db.createObjectStore('attachments', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
+        const expenses = db.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
+        expenses.createIndex('by-datetime', 'datetime');
+      },
+      blocked(currentVersion, blockedVersion, event) {
+        console.log("BLOCKED:", currentVersion, blockedVersion);
+      },
+      blocking(currentVersion, blockedVersion, event) {
+        console.log("BLOCKING:", currentVersion, blockedVersion);
+      },
+      terminated() {
+        console.log("TERMINATED");
+      },
+    });
+  } catch (err) {
+    throw(err);
+  }
 
   //const d = await db.add('articles', {
     //title: 'Article 1',
@@ -90,10 +94,8 @@ async function init() {
     //}
     //console.log("done!");
   //}
+
 }
-
-init();
-
 
 /*
  * onmessage
@@ -105,57 +107,65 @@ init();
  * postMessage
  * {
  *  type: string,
- *  params: any,
+ *  result: any,
  *  error?: any,
  * }
 */
 
-self.onmessage = (e) => {
-  console.log(e.data);
+self.onmessage = async (e) => {
+  console.log(e.data.type, e.data.params);
   switch (e.data.type) {
+    case IDB_EVENT.INITIALIZE:
+      try {
+        await init(e.data.params.dbName);
+        self.postMessage({ type: e.data.type, result: true });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
+      break;
     case IDB_EVENT.ATTACHMENT_ADD:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.ATTACHMENT_GET:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.ATTACHMENT_UPDATE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.ATTACHMENT_DELETE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
 
     case IDB_EVENT.CATEGORY_ADD:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.CATEGORY_GET:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.CATEGORY_GET_ALL:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.CATEGORY_UPDATE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.CATEGORY_DELETE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
 
     case IDB_EVENT.EXPENSE_ADD:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.EXPENSE_GET:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.EXPENSE_GET_BY_INDEX:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.EXPENSE_UPDATE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.EXPENSE_DELETE:
-      self.postMessage({ type: e.data.type, params: `${e.data.type} PONG ${new Date()}` });
+      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
   }
 }

@@ -47,7 +47,11 @@
     });
     setTimeout(() => {
       Object.keys(IDB_EVENT).forEach(name => {
-        idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+        if (name === IDB_EVENT.INITIALIZE) {
+          idbWorker.postMessage({ type: name, params: { dbName: 'expense-tracker'} });
+        } else {
+          idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+        }
       });
     }, 5000);
   });
