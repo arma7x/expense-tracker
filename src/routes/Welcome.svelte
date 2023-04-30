@@ -41,19 +41,19 @@
     navInstance.attachListener();
 
     Object.keys(IDB_EVENT).forEach(name => {
-      idbWorkerEventEmitter.addListener(name, (evt) => {
-        console.log(evt);
-      });
-    });
-    setTimeout(() => {
-      Object.keys(IDB_EVENT).forEach(name => {
-        if (name === IDB_EVENT.INITIALIZE) {
-          idbWorker.postMessage({ type: name, params: { dbName: 'expense-tracker'} });
-        } else {
-          idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+      idbWorkerEventEmitter.addListener(name, (result) => {
+        console.log(result);
+        if (name === IDB_EVENT.INITIALIZE && result) {
+          Object.keys(IDB_EVENT).forEach(name => {
+            if (name !== IDB_EVENT.INITIALIZE) {
+              idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+            }
+          });
         }
       });
-    }, 5000);
+    });
+
+    idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: 'expense-tracker'} });
   });
 
   onDestroy(() => {
