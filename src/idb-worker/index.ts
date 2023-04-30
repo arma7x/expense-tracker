@@ -94,6 +94,22 @@ async function init() {
 
 init();
 
+
+/*
+ * onmessage
+ * {
+ *  type: string,
+ *  params: any,
+ * }
+ *
+ * postMessage
+ * {
+ *  type: string,
+ *  params: any,
+ *  error?: any,
+ * }
+*/
+
 self.onmessage = (e) => {
   console.log(e.data);
   switch (e.data.type) {
