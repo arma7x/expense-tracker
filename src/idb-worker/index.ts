@@ -157,19 +157,52 @@ self.onmessage = async (e) => {
       break;
 
     case IDB_EVENT.CATEGORY_ADD:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.add('categories', {
+          name: e.data.params.name,
+          color: e.data.params.color,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.CATEGORY_GET:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const attachment = await database.get('categories', e.data.params.id);
+        self.postMessage({ type: e.data.type, result: attachment });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.CATEGORY_GET_ALL:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const attachment = await database.getAll('categories');
+        self.postMessage({ type: e.data.type, result: attachment });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
+      break;
       break;
     case IDB_EVENT.CATEGORY_UPDATE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.put('categories', {
+          name: e.data.params.name,
+          color: e.data.params.color,
+          id: e.data.params.id,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.CATEGORY_DELETE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const result = await database.delete('categories', e.data.params.id);
+        self.postMessage({ type: e.data.type, result: true });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
 
     case IDB_EVENT.EXPENSE_ADD:

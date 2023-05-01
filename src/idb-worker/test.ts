@@ -58,7 +58,7 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_GET, { id: aid });
     textBlob = new Blob([result.arraybuffer], { type: result.mime });
     outputText = await (await fetch(URL.createObjectURL(textBlob))).text();
-    console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${aid} => ${outputText}`, 'color: green');
+    console.log(`%c${IDB_EVENT.ATTACHMENT_GET}: ${aid} => ${outputText}`, 'color: green');
 
     if (inputText !== outputText) {
       throw("Updated attachment not match!");
@@ -66,6 +66,21 @@ export async function runTest(dbName = 'test-expense-tracker') {
 
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_DELETE, { id: aid });
     console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${aid} => ${result}`, 'color: green');
+
+    let category = { name: "Category 1", color: "#FFFFFF" };
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_ADD, category);
+    console.log(`%c${IDB_EVENT.CATEGORY_ADD}: ${JSON.stringify(result)}`, 'color: green');
+
+    let cid = result;
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: cid });
+    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${cid} => ${JSON.stringify(result)}`, 'color: green');
+
+    if (result.name !== category.name && result.color !== category.color) {
+      throw("Category not match!");
+    }
+
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET_ALL, {});
+    console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: ${cid} => ${JSON.stringify(result, null, "\t")}`, 'color: green');
 
   } catch (err) {
     console.error(err);
