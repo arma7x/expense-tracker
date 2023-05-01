@@ -57,13 +57,6 @@ async function init(dbName: string) {
     throw(err);
   }
 
-  //const d = await db.add('articles', {
-    //title: 'Article 1',
-    //date: new Date('2019-01-01'),
-    //body: '…',
-  //});
-  //console.log(d);
-
   //{
     //const tx = db.transaction('articles', 'readwrite');
     //await Promise.all([
@@ -113,7 +106,7 @@ async function init(dbName: string) {
 */
 
 self.onmessage = async (e) => {
-  console.log(e.data.type, e.data.params);
+  // console.log(e.data.type, e.data.params);
   switch (e.data.type) {
     case IDB_EVENT.INITIALIZE:
       try {
@@ -124,16 +117,43 @@ self.onmessage = async (e) => {
       }
       break;
     case IDB_EVENT.ATTACHMENT_ADD:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.add('attachments', {
+          mime: e.data.params.mime,
+          arraybuffer: e.data.params.arraybuffer,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.ATTACHMENT_GET:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const attachment = await database.get('attachments', e.data.params.id);
+        self.postMessage({ type: e.data.type, result: attachment });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.ATTACHMENT_UPDATE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.put('attachments', {
+          mime: e.data.params.mime,
+          arraybuffer: e.data.params.arraybuffer,
+          id: e.data.params.id,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.ATTACHMENT_DELETE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const result = await database.delete('attachments', e.data.params.id);
+        self.postMessage({ type: e.data.type, result: true });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
 
     case IDB_EVENT.CATEGORY_ADD:

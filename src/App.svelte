@@ -6,6 +6,7 @@
   import { Localization } from './utils/localization';
 
   import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
+  import { runTest } from './idb-worker/test';
 
   export let localization = new Localization('en-US', 'langs');
   export let appBar;
@@ -15,8 +16,9 @@
     return {appBar, softwareKey, localization};
   }
 
-  onMount(() => {
+  onMount(async () => {
     console.log('onMount', 'App');
+    await runTest('test-expense-tracker');
   });
 
 </script>

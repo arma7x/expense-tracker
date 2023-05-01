@@ -40,22 +40,22 @@
     softwareKey.setText({ left: 'LSK', center: 'DEMO', right: 'RSK' });
     navInstance.attachListener();
 
-    Object.keys(IDB_EVENT).forEach(name => {
-      idbWorkerEventEmitter.addListener(name, (data) => {
-        console.log(data.result);
-        if (name === IDB_EVENT.INITIALIZE && data.result) {
-          Object.keys(IDB_EVENT).forEach(name => {
-            if (name !== IDB_EVENT.INITIALIZE) {
-              idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
-            }
-          });
-        } else if (name === IDB_EVENT.INITIALIZE && data.error) {
-          console.error(error);
-        }
-      });
-    });
+    //Object.keys(IDB_EVENT).forEach(name => {
+      //idbWorkerEventEmitter.addListener(name, (data) => {
+        //console.log(data.result);
+        //if (name === IDB_EVENT.INITIALIZE && data.result) {
+          //Object.keys(IDB_EVENT).forEach(name => {
+            //if (name !== IDB_EVENT.INITIALIZE) {
+              //idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
+            //}
+          //});
+        //} else if (name === IDB_EVENT.INITIALIZE && data.error) {
+          //console.error(data.error);
+        //}
+      //});
+    //});
 
-    idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: 'expense-tracker'} });
+    //idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: 'expense-tracker'} });
   });
 
   onDestroy(() => {
