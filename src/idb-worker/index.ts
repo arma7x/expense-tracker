@@ -215,7 +215,7 @@ self.onmessage = async (e) => {
     case IDB_EVENT.EXPENSE_GET:
       self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
-    case IDB_EVENT.EXPENSE_GET_BY_INDEX:
+    case IDB_EVENT.EXPENSE_GET_RANGE:
       self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
       break;
     case IDB_EVENT.EXPENSE_UPDATE:
