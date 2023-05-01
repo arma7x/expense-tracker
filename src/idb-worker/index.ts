@@ -3,6 +3,10 @@ import { openDB } from 'idb/with-async-ittr';
 
 import { IDB_EVENT } from './enums';
 
+const TABLE_ATTACHMENT  = 'attachments';
+const TABLE_CATEGORY    = 'categories';
+const TABLE_EXPENSE     = 'expenses';
+
 interface ExpenseTrackerSchema extends DBSchema {
   attachments: {
     key: number,
@@ -21,6 +25,7 @@ interface ExpenseTrackerSchema extends DBSchema {
   expenses: {
     key: number,
     value: {
+      amount: number,
       datetime: Date,
       category: number,
       description: string,
@@ -38,13 +43,13 @@ async function init(dbName: string) {
     database = await openDB(dbName, 1, {
       upgrade(db) {
         console.log("UPGRADE");
-        db.createObjectStore('attachments', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore(TABLE_ATTACHMENT, { keyPath: 'id', autoIncrement: true });
 
-        const categories = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
+        const categories = db.createObjectStore(TABLE_CATEGORY, { keyPath: 'id', autoIncrement: true });
         categories.createIndex('by-name', 'name', { unique: true });
         categories.createIndex('by-color', 'color', { unique: true });
 
-        const expenses = db.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
+        const expenses = db.createObjectStore(TABLE_EXPENSE, { keyPath: 'id', autoIncrement: true });
         expenses.createIndex('by-datetime', 'datetime');
       },
       blocked(currentVersion, blockedVersion, event) {
@@ -122,7 +127,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.ATTACHMENT_ADD:
       try {
-        const id = await database.add('attachments', {
+        const id = await database.add(TABLE_ATTACHMENT, {
           mime: e.data.params.mime,
           arraybuffer: e.data.params.arraybuffer,
         });
@@ -133,7 +138,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.ATTACHMENT_GET:
       try {
-        const attachment = await database.get('attachments', e.data.params.id);
+        const attachment = await database.get(TABLE_ATTACHMENT, e.data.params.id);
         self.postMessage({ type: e.data.type, result: attachment });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
@@ -141,7 +146,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.ATTACHMENT_UPDATE:
       try {
-        const id = await database.put('attachments', {
+        const id = await database.put(TABLE_ATTACHMENT, {
           mime: e.data.params.mime,
           arraybuffer: e.data.params.arraybuffer,
           id: e.data.params.id,
@@ -153,7 +158,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.ATTACHMENT_DELETE:
       try {
-        const result = await database.delete('attachments', e.data.params.id);
+        const result = await database.delete(TABLE_ATTACHMENT, e.data.params.id);
         self.postMessage({ type: e.data.type, result: true });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
@@ -162,7 +167,7 @@ self.onmessage = async (e) => {
 
     case IDB_EVENT.CATEGORY_ADD:
       try {
-        const id = await database.add('categories', {
+        const id = await database.add(TABLE_CATEGORY, {
           name: e.data.params.name,
           color: e.data.params.color,
         });
@@ -173,7 +178,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.CATEGORY_GET:
       try {
-        const attachment = await database.get('categories', e.data.params.id);
+        const attachment = await database.get(TABLE_CATEGORY, e.data.params.id);
         self.postMessage({ type: e.data.type, result: attachment });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
@@ -181,7 +186,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.CATEGORY_GET_ALL:
       try {
-        const attachment = await database.getAll('categories');
+        const attachment = await database.getAll(TABLE_CATEGORY);
         self.postMessage({ type: e.data.type, result: attachment });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
@@ -190,7 +195,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.CATEGORY_UPDATE:
       try {
-        const id = await database.put('categories', {
+        const id = await database.put(TABLE_CATEGORY, {
           name: e.data.params.name,
           color: e.data.params.color,
           id: e.data.params.id,
@@ -202,7 +207,7 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.CATEGORY_DELETE:
       try {
-        const result = await database.delete('categories', e.data.params.id);
+        const result = await database.delete(TABLE_CATEGORY, e.data.params.id);
         self.postMessage({ type: e.data.type, result: true });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
