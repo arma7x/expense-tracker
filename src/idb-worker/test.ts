@@ -38,11 +38,14 @@ function stringToColour(str) {
 
 export async function runTest(dbName = 'test-expense-tracker') {
   try {
+
+    // initilize database
     let result;
     console.log('runTest:', dbName);
     result = await executeWorkerEvent(IDB_EVENT.INITIALIZE, { dbName: dbName });
     console.log(`%c${IDB_EVENT.INITIALIZE}: ${JSON.stringify(result)}`, 'color: green');
 
+    // attachments
     let inputText = new Date().toString();
     let textBlob = new Blob([inputText], { type: 'text/plain' });
     let textBlobArrBuf = await (await fetch(URL.createObjectURL(textBlob))).arrayBuffer();
@@ -80,9 +83,10 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_DELETE, { id: aid });
     console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${aid} => ${result}`, 'color: green');
 
+    // categories
     let category = { name: inputText, color: stringToColour(inputText) };
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_ADD, category);
-    console.log(`%c${IDB_EVENT.CATEGORY_ADD}: ${JSON.stringify(result)}`, 'color: green');
+    console.log(`%c${IDB_EVENT.CATEGORY_ADD}: ${JSON.stringify(result)} => ${JSON.stringify(category)}`, 'color: green');
 
     let cid = result;
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: cid });
@@ -92,8 +96,25 @@ export async function runTest(dbName = 'test-expense-tracker') {
       throw("Category not match!");
     }
 
+    const updateCategory = result;
+    updateCategory.name = result.name.substring(0, 10);
+    updateCategory.color = stringToColour(result.name);
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_UPDATE, updateCategory);
+    console.log(`%c${IDB_EVENT.CATEGORY_UPDATE}: ${JSON.stringify(result)} => ${JSON.stringify(updateCategory)}`, 'color: green');
+
+    cid = result;
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: cid });
+    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${cid} => ${JSON.stringify(result)}`, 'color: green');
+
+    if (result.name !== updateCategory.name && result.color !== updateCategory.color) {
+      throw("Updated category not match!");
+    }
+
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_DELETE, { id: cid });
+    console.log(`%c${IDB_EVENT.CATEGORY_DELETE}: ${cid} => ${result}`, 'color: green');
+
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET_ALL, {});
-    console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: ${cid} => ${JSON.stringify(result.length)}`, 'color: green');
+    console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: Total Categories => ${JSON.stringify(result.length)}`, 'color: green');
 
   } catch (err) {
     console.error(err);
