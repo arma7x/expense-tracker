@@ -117,7 +117,19 @@ export async function runTest(dbName = 'test-expense-tracker') {
     console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: Total Categories => ${JSON.stringify(result.length)}`, 'color: green');
 
     // expenses
+    const expense = {
+      amount: 1000,
+      datetime: new Date(),
+      category: 1,
+      description: 'description',
+      attachment: 1,
+    }
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_ADD, expense);
+    console.log(`%c${IDB_EVENT.EXPENSE_ADD}: ${JSON.stringify(result)} => ${JSON.stringify(expense)}`, 'color: green');
 
+    let eid = result;
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET, { id: eid });
+    console.log(`%c${IDB_EVENT.EXPENSE_GET}: ${eid} => ${JSON.stringify(result)}`, 'color: green');
 
   } catch (err) {
     console.error(err);
