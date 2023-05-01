@@ -41,14 +41,16 @@
     navInstance.attachListener();
 
     Object.keys(IDB_EVENT).forEach(name => {
-      idbWorkerEventEmitter.addListener(name, (result) => {
-        console.log(result);
-        if (name === IDB_EVENT.INITIALIZE && result) {
+      idbWorkerEventEmitter.addListener(name, (data) => {
+        console.log(data.result);
+        if (name === IDB_EVENT.INITIALIZE && data.result) {
           Object.keys(IDB_EVENT).forEach(name => {
             if (name !== IDB_EVENT.INITIALIZE) {
               idbWorker.postMessage({ type: name, params: `PING ${new Date()}` });
             }
           });
+        } else if (name === IDB_EVENT.INITIALIZE && data.error) {
+          console.error(error);
         }
       });
     });
