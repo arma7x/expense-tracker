@@ -116,6 +116,9 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET_ALL, {});
     console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: Total Categories => ${JSON.stringify(result.length)}`, 'color: green');
 
+    // expenses
+
+
   } catch (err) {
     console.error(err);
   }

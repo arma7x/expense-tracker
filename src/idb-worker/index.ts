@@ -66,37 +66,6 @@ async function init(dbName: string) {
     throw(err);
   }
 
-  //{
-    //const tx = db.transaction('articles', 'readwrite');
-    //await Promise.all([
-      //tx.store.add({
-        //title: 'Article 2',
-        //date: new Date('2019-01-01'),
-        //body: '…',
-      //}),
-      //tx.store.add({
-        //title: 'Article 3',
-        //date: new Date('2019-01-02'),
-        //body: '…',
-      //}),
-      //tx.done,
-    //]);
-  //}
-
-  //{
-    //try {
-      //console.log("searching...");
-      //let keyRange = IDBKeyRange.bound(new Date('2019-01-01'), new Date('2019-01-01'));
-      //let result = await db.getAllFromIndex('articles', 'date', keyRange);
-      //result.forEach(item => {
-        //console.log(item);
-      //});
-    //} catch (err) {
-      //console.log(err);
-    //}
-    //console.log("done!");
-  //}
-
 }
 
 /*
@@ -178,8 +147,8 @@ self.onmessage = async (e) => {
       break;
     case IDB_EVENT.CATEGORY_GET:
       try {
-        const attachment = await database.get(TABLE_CATEGORY, e.data.params.id);
-        self.postMessage({ type: e.data.type, result: attachment });
+        const category = await database.get(TABLE_CATEGORY, e.data.params.id);
+        self.postMessage({ type: e.data.type, result: category });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
@@ -215,19 +184,58 @@ self.onmessage = async (e) => {
       break;
 
     case IDB_EVENT.EXPENSE_ADD:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.add(TABLE_EXPENSE, {
+          amount: e.data.params.amount,
+          datetime: e.data.params.datetime,
+          category: e.data.params.category,
+          description: e.data.params.description,
+          attachment: e.data.params.attachment,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.EXPENSE_GET:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const expense = await database.get(TABLE_EXPENSE, e.data.params.id);
+        self.postMessage({ type: e.data.type, result: expense });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.EXPENSE_GET_RANGE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const keyRange = IDBKeyRange.bound(e.data.params.begin, e.data.params.end);
+        let result = await database.getAllFromIndex(TABLE_EXPENSE, 'by-datetime', keyRange);
+        self.postMessage({ type: e.data.type, result: result });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.EXPENSE_UPDATE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const id = await database.put(TABLE_EXPENSE, {
+          amount: e.data.params.amount,
+          datetime: e.data.params.datetime,
+          category: e.data.params.category,
+          description: e.data.params.description,
+          attachment: e.data.params.attachment,
+          id: e.data.params.id,
+        });
+        self.postMessage({ type: e.data.type, result: id });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
     case IDB_EVENT.EXPENSE_DELETE:
-      self.postMessage({ type: e.data.type, result: `${e.data.type} PONG ${new Date()}` });
+      try {
+        const result = await database.delete(TABLE_EXPENSE, e.data.params.id);
+        self.postMessage({ type: e.data.type, result: true });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
       break;
   }
 }
