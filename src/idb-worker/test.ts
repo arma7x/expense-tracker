@@ -23,6 +23,19 @@ function executeWorkerEvent(eventType: string, eventParams: any) {
   });
 }
 
+function stringToColour(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  var colour = '#';
+  for (var i = 0; i < 3; i++) {
+    var value = (hash >> (i * 8)) & 0xFF;
+    colour += ('00' + value.toString(16)).substr(-2);
+  }
+  return colour;
+}
+
 export async function runTest(dbName = 'test-expense-tracker') {
   try {
     let result;
@@ -67,7 +80,7 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_DELETE, { id: aid });
     console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${aid} => ${result}`, 'color: green');
 
-    let category = { name: "Category 1", color: "#FFFFFF" };
+    let category = { name: inputText, color: stringToColour(inputText) };
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_ADD, category);
     console.log(`%c${IDB_EVENT.CATEGORY_ADD}: ${JSON.stringify(result)}`, 'color: green');
 
@@ -80,7 +93,7 @@ export async function runTest(dbName = 'test-expense-tracker') {
     }
 
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET_ALL, {});
-    console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: ${cid} => ${JSON.stringify(result, null, "\t")}`, 'color: green');
+    console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: ${cid} => ${JSON.stringify(result.length)}`, 'color: green');
 
   } catch (err) {
     console.error(err);

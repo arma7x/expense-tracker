@@ -39,7 +39,11 @@ async function init(dbName: string) {
       upgrade(db) {
         console.log("UPGRADE");
         db.createObjectStore('attachments', { keyPath: 'id', autoIncrement: true });
-        db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
+
+        const categories = db.createObjectStore('categories', { keyPath: 'id', autoIncrement: true });
+        categories.createIndex('by-name', 'name', { unique: true });
+        categories.createIndex('by-color', 'color', { unique: true });
+
         const expenses = db.createObjectStore('expenses', { keyPath: 'id', autoIncrement: true });
         expenses.createIndex('by-datetime', 'datetime');
       },
