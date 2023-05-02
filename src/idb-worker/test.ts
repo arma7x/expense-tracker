@@ -52,11 +52,11 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_ADD, { mime: textBlob.type, arraybuffer: textBlobArrBuf });
     console.log(`%c${IDB_EVENT.ATTACHMENT_ADD}: ${JSON.stringify(result)} => ${inputText}`, 'color: green');
 
-    let aid = result;
-    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_GET, { id: aid });
+    let attachment_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_GET, { id: attachment_id });
     textBlob = new Blob([result.arraybuffer], { type: result.mime });
     let outputText = await (await fetch(URL.createObjectURL(textBlob))).text();
-    console.log(`%c${IDB_EVENT.ATTACHMENT_GET}: ${aid} => ${outputText}`, 'color: green');
+    console.log(`%c${IDB_EVENT.ATTACHMENT_GET}: ${attachment_id} => ${outputText}`, 'color: green');
 
     if (inputText !== outputText) {
       throw("Attachment not match!");
@@ -70,27 +70,27 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_UPDATE, result);
     console.log(`%c${IDB_EVENT.ATTACHMENT_UPDATE}: ${JSON.stringify(result)} => ${inputText}`, 'color: green');
 
-    aid = result;
-    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_GET, { id: aid });
+    attachment_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_GET, { id: attachment_id });
     textBlob = new Blob([result.arraybuffer], { type: result.mime });
     outputText = await (await fetch(URL.createObjectURL(textBlob))).text();
-    console.log(`%c${IDB_EVENT.ATTACHMENT_GET}: ${aid} => ${outputText}`, 'color: green');
+    console.log(`%c${IDB_EVENT.ATTACHMENT_GET}: ${attachment_id} => ${outputText}`, 'color: green');
 
     if (inputText !== outputText) {
       throw("Updated attachment not match!");
     }
 
-    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_DELETE, { id: aid });
-    console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${aid} => ${result}`, 'color: green');
+    result = await executeWorkerEvent(IDB_EVENT.ATTACHMENT_DELETE, { id: attachment_id });
+    console.log(`%c${IDB_EVENT.ATTACHMENT_DELETE}: ${attachment_id} => ${result}`, 'color: green');
 
     // categories
     let category = { name: inputText, color: stringToColour(inputText) };
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_ADD, category);
     console.log(`%c${IDB_EVENT.CATEGORY_ADD}: ${JSON.stringify(result)} => ${JSON.stringify(category)}`, 'color: green');
 
-    let cid = result;
-    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: cid });
-    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${cid} => ${JSON.stringify(result)}`, 'color: green');
+    let category_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: category_id });
+    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${category_id} => ${JSON.stringify(result)}`, 'color: green');
 
     if (result.name !== category.name && result.color !== category.color) {
       throw("Category not match!");
@@ -102,34 +102,65 @@ export async function runTest(dbName = 'test-expense-tracker') {
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_UPDATE, updateCategory);
     console.log(`%c${IDB_EVENT.CATEGORY_UPDATE}: ${JSON.stringify(result)} => ${JSON.stringify(updateCategory)}`, 'color: green');
 
-    cid = result;
-    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: cid });
-    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${cid} => ${JSON.stringify(result)}`, 'color: green');
+    category_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET, { id: category_id });
+    console.log(`%c${IDB_EVENT.CATEGORY_GET}: ${category_id} => ${JSON.stringify(result)}`, 'color: green');
 
     if (result.name !== updateCategory.name && result.color !== updateCategory.color) {
       throw("Updated category not match!");
     }
 
-    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_DELETE, { id: cid });
-    console.log(`%c${IDB_EVENT.CATEGORY_DELETE}: ${cid} => ${result}`, 'color: green');
+    result = await executeWorkerEvent(IDB_EVENT.CATEGORY_DELETE, { id: category_id });
+    console.log(`%c${IDB_EVENT.CATEGORY_DELETE}: ${category_id} => ${result}`, 'color: green');
 
     result = await executeWorkerEvent(IDB_EVENT.CATEGORY_GET_ALL, {});
     console.log(`%c${IDB_EVENT.CATEGORY_GET_ALL}: Total Categories => ${JSON.stringify(result.length)}`, 'color: green');
 
     // expenses
+    const datetime = new Date();
     const expense = {
       amount: 1000,
-      datetime: new Date(),
-      category: 1,
+      datetime: datetime,
+      category: 0,
       description: 'description',
-      attachment: 1,
+      attachment: 0,
     }
     result = await executeWorkerEvent(IDB_EVENT.EXPENSE_ADD, expense);
     console.log(`%c${IDB_EVENT.EXPENSE_ADD}: ${JSON.stringify(result)} => ${JSON.stringify(expense)}`, 'color: green');
 
-    let eid = result;
-    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET, { id: eid });
-    console.log(`%c${IDB_EVENT.EXPENSE_GET}: ${eid} => ${JSON.stringify(result)}`, 'color: green');
+    let expense_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET, { id: expense_id });
+    console.log(`%c${IDB_EVENT.EXPENSE_GET}: ${expense_id} => ${JSON.stringify(result)}`, 'color: green');
+
+    if (result.amount !== expense.amount && result.datetime !== expense.datetime && result.category !== expense.category && result.description !== expense.description && result.attachment !== expense.attachment) {
+      throw("Expense not match!");
+    }
+
+    const updateExpense = result;
+    updateExpense.amount = result.amount + 100;
+    updateExpense.datetime = new Date(result.datetime.getTime() - (24 * 60 * 60 * 1000));
+    updateExpense.category = result.category + 1;
+    updateExpense.description = result.description + " updated";
+    updateExpense.attachment = result.attachment + 1;
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_UPDATE, updateExpense);
+    console.log(`%c${IDB_EVENT.EXPENSE_UPDATE}: ${JSON.stringify(result)} => ${JSON.stringify(updateExpense)}`, 'color: green');
+
+    expense_id = result;
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET, { id: expense_id });
+    console.log(`%c${IDB_EVENT.EXPENSE_GET}: ${expense_id} => ${JSON.stringify(result)}`, 'color: green');
+
+    if (result.amount !== updateExpense.amount && result.datetime !== updateExpense.datetime && result.category !== updateExpense.category && result.description !== updateExpense.description && result.attachment !== updateExpense.attachment) {
+      throw("Updated expense not match!");
+    }
+
+    updateExpense.datetime.setUTCHours(0);updateExpense.datetime.setUTCMinutes(0);updateExpense.datetime.setUTCSeconds(0);updateExpense.datetime.setUTCMilliseconds(0);
+    datetime.setUTCHours(23);datetime.setUTCMinutes(59);datetime.setUTCSeconds(59);datetime.setUTCMilliseconds(999);
+    const range = { begin: updateExpense.datetime, end: datetime };
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET_RANGE, range);
+    console.log(`%c${IDB_EVENT.EXPENSE_GET_RANGE}: ${range.begin} - ${range.end} Total Expenses => ${JSON.stringify(result.length)}`, 'color: green');
+
+    result = await executeWorkerEvent(IDB_EVENT.EXPENSE_DELETE, { id: expense_id });
+    console.log(`%c${IDB_EVENT.EXPENSE_DELETE}: ${expense_id} => ${result}`, 'color: green');
 
   } catch (err) {
     console.error(err);
