@@ -191,6 +191,7 @@ self.onmessage = async (e) => {
       }
       break;
     case IDB_EVENT.CATEGORY_DELETE:
+      console.log(111, e.data);
       try {
         const result = await database.delete(TABLE_CATEGORY, e.data.params.id);
         self.postMessage({ type: e.data.type, result: e.data.params.id });

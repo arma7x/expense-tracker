@@ -7,11 +7,10 @@ const CATEGORIES_STORE = writable({});
 export default CATEGORIES_STORE;
 
 idbWorkerEventEmitter.addListener(IDB_EVENT.CATEGORY_GET_ALL, (data) => {
-  console.log(data);
   if (data.result) {
     let temp: {[key:string]: any} = {};
     data.result.forEach(cat => {
-      temp[temp.id] = temp;
+      temp[cat.id] = cat;
     });
     CATEGORIES_STORE.update(n => temp);
   } else if (data.error) {
@@ -20,25 +19,22 @@ idbWorkerEventEmitter.addListener(IDB_EVENT.CATEGORY_GET_ALL, (data) => {
 });
 
 idbWorkerEventEmitter.addListener(IDB_EVENT.CATEGORY_ADD, (data) => {
-  console.log(data);
   if (data.result) {
     idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET, params: { id: data.result } });
   } else if (data.error) {
-    alert(data.error);
+    alert("Duplicate name or color");
   }
 });
 
 idbWorkerEventEmitter.addListener(IDB_EVENT.CATEGORY_UPDATE, (data) => {
-  console.log(data);
   if (data.result) {
     idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET, params: { id: data.result } });
   } else if (data.error) {
-    alert(data.error);
+    alert("Duplicate name or color");
   }
 });
 
 idbWorkerEventEmitter.addListener(IDB_EVENT.CATEGORY_GET, (data) => {
-  console.log(data);
   if (data.result) {
     CATEGORIES_STORE.update((categories) => {
       categories[data.result.id] = data.result;

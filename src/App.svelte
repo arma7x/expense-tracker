@@ -5,6 +5,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { Localization } from './utils/localization';
 
+  import Category from "./routes/Category.svelte";
   import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
   import './idb-worker/categoriesStore';
 
@@ -28,10 +29,10 @@
       <svelte:component this="{Welcome}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
     <Route primary={false} path="/" let:location let:navigate>
-      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp}/>
+      <svelte:component this="{Welcome}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
-    <Route primary={false} path="demo" let:location let:navigate>
-      <svelte:component this="{Demo}" {location} {navigate} {getAppProp}/>
+    <Route primary={false} path="manage-category" let:location let:navigate>
+      <svelte:component this="{Category}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
     <Route primary={false} path="room" let:location let:navigate>
       <svelte:component this="{Room}" {location} {navigate} {getAppProp}/>

@@ -13,7 +13,7 @@
   export let idbWorker: Worker;
   export let idbWorkerEventEmitter: EventEmitter;
 
-  let name: string = 'Welcome';
+  let name: string = 'Weekly Statistic';
 
   let lskMenu: OptionMenu;
 
@@ -48,6 +48,7 @@
           { title: 'Detailed Statistics', subtitle: 'Generate expenses report' },
           { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
           { title: 'Disclaimer Notice', subtitle: 'Notice of app usage' },
+          { title: 'Changelogs', subtitle: 'Read release notes' },
           { title: 'Exit', subtitle: 'Close app' },
         ],
         softKeyCenterText: 'select',
@@ -56,6 +57,9 @@
         onEnter: async (evt, scope) => {
           lskMenu.$destroy();
           switch (scope.index) {
+            case 0:
+              goto('manage-category');
+              break;
             case 4:
               window.close();
               break;
@@ -89,7 +93,7 @@
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
-    softwareKey.setText({ left: 'Menu', center: 'DEMO', right: 'RSK' });
+    softwareKey.setText({ left: 'Menu', center: 'ADD', right: 'List' });
     navInstance.attachListener();
     idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
     idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });
@@ -97,12 +101,13 @@
 
   onDestroy(() => {
     navInstance.detachListener();
+    idbWorkerEventEmitter.removeListener(IDB_EVENT.INITIALIZE, onInitialize);
   });
 
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
-  <h1>Hello {name}!</h1>
+  <h1>{name}!</h1>
   <div class="vertical">
     <div class="vertClass">Vertical 1</div>
     <div class="vertClass">Vertical 2</div>
