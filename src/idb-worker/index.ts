@@ -48,6 +48,8 @@ async function init(dbName: string) {
         categories.createIndex('by-color', 'color', { unique: true });
         const expenses = db.createObjectStore(TABLE_EXPENSE, { keyPath: 'id', autoIncrement: true });
         expenses.createIndex('by-datetime', 'datetime');
+        expenses.createIndex('by-category', 'category');
+        expenses.createIndex('by-attachment', 'attachment');
       },
       blocked(currentVersion, blockedVersion, event) {
         console.log("openDB@BLOCKED:", currentVersion, blockedVersion);
