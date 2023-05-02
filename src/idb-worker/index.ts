@@ -142,7 +142,7 @@ self.onmessage = async (e) => {
     case IDB_EVENT.ATTACHMENT_DELETE:
       try {
         const result = await database.delete(TABLE_ATTACHMENT, e.data.params.id);
-        self.postMessage({ type: e.data.type, result: true });
+        self.postMessage({ type: e.data.type, result: e.data.params.id });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
@@ -191,7 +191,7 @@ self.onmessage = async (e) => {
     case IDB_EVENT.CATEGORY_DELETE:
       try {
         const result = await database.delete(TABLE_CATEGORY, e.data.params.id);
-        self.postMessage({ type: e.data.type, result: true });
+        self.postMessage({ type: e.data.type, result: e.data.params.id });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
@@ -246,7 +246,7 @@ self.onmessage = async (e) => {
     case IDB_EVENT.EXPENSE_DELETE:
       try {
         const result = await database.delete(TABLE_EXPENSE, e.data.params.id);
-        self.postMessage({ type: e.data.type, result: true });
+        self.postMessage({ type: e.data.type, result: e.data.params.id });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
