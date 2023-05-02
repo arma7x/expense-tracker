@@ -41,7 +41,11 @@ export async function runTest(dbName = 'test-expense-tracker') {
 
     // initilize database
     let result;
-    console.log('runTest:', dbName);
+    console.log('%crunTest:', dbName, 'color: blue');
+
+    result = await executeWorkerEvent(IDB_EVENT.DROP, { dbName: dbName });
+    console.log(`%c${IDB_EVENT.DROP}: ${JSON.stringify(result)}`, 'color: green');
+
     result = await executeWorkerEvent(IDB_EVENT.INITIALIZE, { dbName: dbName });
     console.log(`%c${IDB_EVENT.INITIALIZE}: ${JSON.stringify(result)}`, 'color: green');
 

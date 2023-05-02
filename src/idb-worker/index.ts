@@ -1,5 +1,5 @@
 import type { DBSchema } from 'idb';
-import { openDB } from 'idb/with-async-ittr';
+import { openDB, deleteDB } from 'idb/with-async-ittr';
 
 import { IDB_EVENT } from './enums';
 
@@ -38,34 +38,42 @@ interface ExpenseTrackerSchema extends DBSchema {
 let database;
 
 async function init(dbName: string) {
-
   try {
     database = await openDB(dbName, 1, {
       upgrade(db) {
-        console.log("UPGRADE");
+        console.log("openDB@UPGRADE");
         db.createObjectStore(TABLE_ATTACHMENT, { keyPath: 'id', autoIncrement: true });
-
         const categories = db.createObjectStore(TABLE_CATEGORY, { keyPath: 'id', autoIncrement: true });
         categories.createIndex('by-name', 'name', { unique: true });
         categories.createIndex('by-color', 'color', { unique: true });
-
         const expenses = db.createObjectStore(TABLE_EXPENSE, { keyPath: 'id', autoIncrement: true });
         expenses.createIndex('by-datetime', 'datetime');
       },
       blocked(currentVersion, blockedVersion, event) {
-        console.log("BLOCKED:", currentVersion, blockedVersion);
+        console.log("openDB@BLOCKED:", currentVersion, blockedVersion);
       },
       blocking(currentVersion, blockedVersion, event) {
-        console.log("BLOCKING:", currentVersion, blockedVersion);
+        console.log("openDB@BLOCKING:", currentVersion, blockedVersion);
       },
       terminated() {
-        console.log("TERMINATED");
+        console.log("openDB@TERMINATED");
       },
     });
   } catch (err) {
     throw(err);
   }
+}
 
+async function drop(dbName: string) {
+  try {
+    await deleteDB(dbName, {
+      blocked() {
+        console.log("deleteDB@BLOCKED");
+      },
+    });
+  } catch (err) {
+    throw(err);
+  }
 }
 
 /*
@@ -82,13 +90,19 @@ async function init(dbName: string) {
  *  error?: any,
  * }
 */
-
 self.onmessage = async (e) => {
-  // console.log(e.data.type, e.data.params);
   switch (e.data.type) {
     case IDB_EVENT.INITIALIZE:
       try {
         await init(e.data.params.dbName);
+        self.postMessage({ type: e.data.type, result: true });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
+      break;
+    case IDB_EVENT.DROP:
+      try {
+        await drop(e.data.params.dbName);
         self.postMessage({ type: e.data.type, result: true });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
