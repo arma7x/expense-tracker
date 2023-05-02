@@ -142,7 +142,7 @@ export async function runTest(dbName = 'test-expense-tracker') {
 
     const updateExpense = result;
     updateExpense.amount = result.amount + 100;
-    updateExpense.datetime = new Date(result.datetime.getTime() - (24 * 60 * 60 * 1000));
+    updateExpense.datetime = new Date(result.datetime.getTime() - (2 * 24 * 60 * 60 * 1000));
     updateExpense.category = result.category + 1;
     updateExpense.description = result.description + " updated";
     updateExpense.attachment = result.attachment + 1;
@@ -158,8 +158,9 @@ export async function runTest(dbName = 'test-expense-tracker') {
     }
 
     updateExpense.datetime.setUTCHours(0);updateExpense.datetime.setUTCMinutes(0);updateExpense.datetime.setUTCSeconds(0);updateExpense.datetime.setUTCMilliseconds(0);
+    const tz = (new Date().getTimezoneOffset() / 60) * 60 * 60 * 1000;
     datetime.setUTCHours(23);datetime.setUTCMinutes(59);datetime.setUTCSeconds(59);datetime.setUTCMilliseconds(999);
-    const range = { begin: updateExpense.datetime, end: datetime };
+    const range = { begin: new Date(updateExpense.datetime.getTime() + tz), end: new Date(datetime.getTime() + tz) };
     result = await executeWorkerEvent(IDB_EVENT.EXPENSE_GET_RANGE, range);
     console.log(`%c${IDB_EVENT.EXPENSE_GET_RANGE}: ${range.begin} - ${range.end} Total Expenses => ${JSON.stringify(result.length)}`, 'color: green');
 

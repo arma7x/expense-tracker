@@ -26,7 +26,7 @@ interface ExpenseTrackerSchema extends DBSchema {
     key: number,
     value: {
       amount: number,
-      datetime: Date,
+      datetime: Date, // UTC
       category: number,
       description: string,
       attachment: number,
