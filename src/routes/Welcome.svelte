@@ -5,6 +5,8 @@
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
 
+  import { IDB_EVENT  } from '../idb-worker/enums';
+
   export let location: any;
   export let navigate: any;
   export let getAppProp: Function;
@@ -75,16 +77,25 @@
     });
   }
 
+  function onInitialize(data) {
+    if (data.result) {
+      console.log("idb-worker status:", data.result);
+      idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
+    } else if (data.error) {
+      console.error(data.error);
+    }
+  }
+
   onMount(() => {
-    console.log('onMount', name);
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
     softwareKey.setText({ left: 'Menu', center: 'DEMO', right: 'RSK' });
     navInstance.attachListener();
+    idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
+    idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });
   });
 
   onDestroy(() => {
-    console.log('onDestroy', name);
     navInstance.detachListener();
   });
 
