@@ -3,7 +3,7 @@
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
   import EventEmitter from 'events';
-  import { IDB_EVENT } from '../idb-worker/enums';
+  import { OptionMenu } from '../components/index.ts';
 
   export let location: any;
   export let navigate: any;
@@ -13,18 +13,20 @@
 
   let name: string = 'Welcome';
 
+  let lskMenu: OptionMenu;
+
   let navOptions = {
     verticalNavClass: 'vertClass',
     horizontalNavClass: 'horzClass',
     softkeyLeftListener: function(evt) {
-      console.log('softkeyLeftListener', name);
+      openLSKMenu();
     },
     softkeyRightListener: function(evt) {
       console.log('softkeyRightListener', name);
     },
     enterListener: function(evt) {
-      console.log('enterListener', name);
-      goto('demo');
+      // console.log('enterListener', name);
+      // goto('demo');
     },
     backspaceListener: function(evt) {
       console.log('backspaceListener', name);
@@ -33,11 +35,51 @@
 
   let navInstance = createKaiNavigator(navOptions);
 
+  function openLSKMenu() {
+    lskMenu = new OptionMenu({
+      target: document.body,
+      props: {
+        title: 'Menu',
+        focusIndex: 0,
+        options: [
+          { title: 'Categories', subtitle: 'Manage expense categories' },
+          { title: 'Detailed Statistics', subtitle: 'Generate expenses report' },
+          { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
+          { title: 'Disclaimer Notice', subtitle: 'Notice of app usage' },
+          { title: 'Exit', subtitle: 'Close app' },
+        ],
+        softKeyCenterText: 'select',
+        onSoftkeyRight: (evt, scope) => {},
+        onSoftkeyLeft: (evt, scope) => {},
+        onEnter: async (evt, scope) => {
+          lskMenu.$destroy();
+          switch (scope.index) {
+            case 4:
+              window.close();
+              break;
+          }
+        },
+        onBackspace: (evt, scope) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          lskMenu.$destroy();
+        },
+        onOpened: () => {
+          navInstance.detachListener();
+        },
+        onClosed: (scope) => {
+          navInstance.attachListener();
+          lskMenu = null;
+        }
+      }
+    });
+  }
+
   onMount(() => {
     console.log('onMount', name);
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
-    softwareKey.setText({ left: 'LSK', center: 'DEMO', right: 'RSK' });
+    softwareKey.setText({ left: 'Menu', center: 'DEMO', right: 'RSK' });
     navInstance.attachListener();
   });
 
