@@ -4,7 +4,7 @@
   import { onMount, onDestroy } from 'svelte';
   import CategoryEditor from './modals/CategoryEditor.svelte';
   import EventEmitter from 'events';
-  import { IDB_EVENT  } from '../idb-worker/types';
+  import { IDB_EVENT, CategoryType } from '../idb-worker/types';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore.ts';
   import { ListView, Dialog } from '../components/index.ts';
 
@@ -17,7 +17,7 @@
   const navClass: string = "navManageCategory";
 
   let title: string = 'Manage Category';
-  let categoryList: {[key:number] : any} = {};
+  let categoryList: Array<CategoryType> = {};
 
   let dialog: Dialog;
   let categoryEditorModal: CategoryEditor;
@@ -67,7 +67,7 @@
     }
   });
 
-  function openCategoryEditorModal(category: Object | null) {
+  function openCategoryEditorModal(category: CategoryType | null) {
     categoryEditorModal = new CategoryEditor({
       target: document.body,
       props: {
@@ -95,7 +95,7 @@
     });
   }
 
-  function removeCategory(category: {[key:number] : any}) {
+  function removeCategory(category: CategoryType) {
     dialog = new Dialog({
       target: document.body,
       props: {

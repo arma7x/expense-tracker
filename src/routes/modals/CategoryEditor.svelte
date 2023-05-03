@@ -4,7 +4,7 @@
   import { createKaiNavigator } from '../../utils/navigation.ts';
   import { SoftwareKey, TextInputField, Toast, Toaster } from '../../components/index.ts';
   import EventEmitter from 'events';
-  import { IDB_EVENT  } from '../../idb-worker/types';
+  import { IDB_EVENT } from '../../idb-worker/types';
 
   export let title: string = 'Modal';
   export let id: number | null;
