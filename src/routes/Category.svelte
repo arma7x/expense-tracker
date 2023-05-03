@@ -78,7 +78,6 @@
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
-          console.log('categoryEditorModal:', result);
           categoryEditorModal.$destroy();
         },
         onError: (err: any) => {
@@ -149,7 +148,6 @@
   }
 
   onMount(() => {
-    console.log('onMount', title);
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(title);
     navInstance.attachListener();
@@ -157,7 +155,6 @@
 
   onDestroy(() => {
     unsubscribe();
-    console.log('onDestroy', title);
     navInstance.detachListener();
   });
 
