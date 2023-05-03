@@ -99,7 +99,7 @@
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
-          console.log('expenseEditorModal:', result);
+          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getWeekRange() });
           expenseEditorModal.$destroy();
         },
         onError: (err: any) => {
@@ -172,7 +172,7 @@
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
-  <h1>{name}!</h1>
+  <h3>{weeklyExpenses.length}!</h3>
 </main>
 
 <style>
