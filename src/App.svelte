@@ -8,6 +8,7 @@
   import Category from "./routes/Category.svelte";
   import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
   import './idb-worker/categoriesStore';
+  // import { runTest } from './idb-worker/test';
 
   export let localization = new Localization('en-US', 'langs');
   export let appBar;
@@ -17,7 +18,13 @@
     return {appBar, softwareKey, localization};
   }
 
-  onMount(() => {});
+  onMount(async() => {
+    //try {
+      //await runTest();
+    //} catch (err) {
+      //console.error(err);
+    //}
+  });
 
 </script>
 

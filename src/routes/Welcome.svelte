@@ -93,7 +93,7 @@
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
-    softwareKey.setText({ left: 'Menu', center: 'ADD', right: 'List' });
+    softwareKey.setText({ left: 'Menu', center: 'ADD', right: 'Expenses' });
     navInstance.attachListener();
     idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
     idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });

@@ -231,6 +231,15 @@ self.onmessage = async (e) => {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
       break;
+    case IDB_EVENT.EXPENSE_COUNT_CATEGORY:
+      try {
+        const keyRange = IDBKeyRange.only(e.data.params.category);
+        let result = await database.countFromIndex(TABLE_EXPENSE, 'by-category', keyRange);
+        self.postMessage({ type: e.data.type, result: result });
+      } catch (err) {
+        self.postMessage({ type: e.data.type, error: err.toString() });
+      }
+      break;
     case IDB_EVENT.EXPENSE_UPDATE:
       try {
         const id = await database.put(TABLE_EXPENSE, {

@@ -53,7 +53,6 @@
     const { softwareKey } = getAppProp();
     categoryList = categories;
     const length = Object.keys(categories).length;
-    console.log('length', length, navInstance.verticalNavIndex);
     if (length > 0)
       softwareKey.setText({ left: 'Add', center: 'Edit', right: 'Remove' });
     else

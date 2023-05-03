@@ -140,6 +140,13 @@ export async function runTest(dbName = 'test-expense-tracker') {
       throw("Expense not match!");
     }
 
+    let by_category = await executeWorkerEvent(IDB_EVENT.EXPENSE_COUNT_CATEGORY, { category: expense.category });
+    console.log(`%c${IDB_EVENT.EXPENSE_COUNT_CATEGORY}: ${expense_id} => ${JSON.stringify(by_category)}`, 'color: green');
+
+    if (by_category !== 1) {
+        throw(`Category not found! ${by_category} ${expense.category}`);
+    }
+
     const updateExpense = result;
     updateExpense.amount = result.amount + 100;
     updateExpense.datetime = new Date(result.datetime.getTime() - (2 * 24 * 60 * 60 * 1000));
@@ -157,6 +164,13 @@ export async function runTest(dbName = 'test-expense-tracker') {
       throw("Updated expense not match!");
     }
 
+    by_category = await executeWorkerEvent(IDB_EVENT.EXPENSE_COUNT_CATEGORY, { category: updateExpense.category });
+    console.log(`%c${IDB_EVENT.EXPENSE_COUNT_CATEGORY}: ${expense_id} => ${JSON.stringify(by_category)}`, 'color: green');
+
+    if (by_category !== 1) {
+        throw(`Updated category not found! ${by_category} ${expense.category}`);
+    }
+
     updateExpense.datetime.setUTCHours(0);updateExpense.datetime.setUTCMinutes(0);updateExpense.datetime.setUTCSeconds(0);updateExpense.datetime.setUTCMilliseconds(0);
     const tz = (new Date().getTimezoneOffset() / 60) * 60 * 60 * 1000;
     datetime.setUTCHours(23);datetime.setUTCMinutes(59);datetime.setUTCSeconds(59);datetime.setUTCMilliseconds(999);
@@ -168,6 +182,6 @@ export async function runTest(dbName = 'test-expense-tracker') {
     console.log(`%c${IDB_EVENT.EXPENSE_DELETE}: ${expense_id} => ${result}`, 'color: green');
 
   } catch (err) {
-    console.error(err);
+    throw(err);
   }
 }
