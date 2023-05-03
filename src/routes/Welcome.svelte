@@ -2,10 +2,13 @@
   import { Route, navigate as goto } from "svelte-navigator";
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
 
-  import { IDB_EVENT  } from '../idb-worker/types';
+  import { IDB_EVENT, CategoryType, ExpenseType  } from '../idb-worker/types';
+  import ExpenseEditor from './modals/ExpenseEditor.svelte';
+  import CATEGORIES_STORE from '../idb-worker/categoriesStore';
 
   export let location: any;
   export let navigate: any;
@@ -14,7 +17,9 @@
   export let idbWorkerEventEmitter: EventEmitter;
 
   let name: string = 'Weekly Statistic';
+  let weeklyExpenses: ExpenseType[] = [];
 
+  let expenseEditorModal: ExpenseEditor;
   let lskMenu: OptionMenu;
 
   let navOptions = {
@@ -27,8 +32,7 @@
       console.log('softkeyRightListener', name);
     },
     enterListener: function(evt) {
-      // console.log('enterListener', name);
-      // goto('demo');
+      openExpenseEditorModal(null);
     },
     backspaceListener: function(evt) {
       console.log('backspaceListener', name);
@@ -76,6 +80,38 @@
         onClosed: (scope) => {
           navInstance.attachListener();
           lskMenu = null;
+        }
+      }
+    });
+  }
+
+  function openExpenseEditorModal(expense: ExpenseType | null) {
+    expenseEditorModal = new ExpenseEditor({
+      target: document.body,
+      props: {
+        title: expense != null ? 'Update Expense' : 'Add Expense',
+        id: expense != null ? expense.id : null,
+        amount: expense != null ? expense.amount : '',
+        datetime: expense != null ? new Date(expense.datetime) : new Date(),
+        category: expense != null ? expense.category : 0,
+        description: expense != null ? expense.description : '',
+        attachment: expense != null ? expense.attachment : '',
+        categories: get(CATEGORIES_STORE),
+        idbWorker: idbWorker,
+        idbWorkerEventEmitter: idbWorkerEventEmitter,
+        onSuccess: (result: any) => {
+          console.log('expenseEditorModal:', result);
+          expenseEditorModal.$destroy();
+        },
+        onError: (err: any) => {
+          toastMessage(err.toString());
+        },
+        onOpened: () => {
+          navInstance.detachListener();
+        },
+        onClosed: () => {
+          navInstance.attachListener();
+          expenseEditorModal = null;
         }
       }
     });
