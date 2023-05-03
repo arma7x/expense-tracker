@@ -1,4 +1,4 @@
-import { Toast, Toaster } from './components/index.ts';
+import { Toast, Toaster } from './components/index';
 
 export default function toastMessage(text) {
   const t = new Toast({
