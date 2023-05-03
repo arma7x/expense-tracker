@@ -6,7 +6,8 @@
   import EventEmitter from 'events';
   import { IDB_EVENT, CategoryType } from '../idb-worker/types';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore.ts';
-  import { ListView, Dialog } from '../components/index.ts';
+  import { ListView, Dialog, Toast, Toaster } from '../components/index.ts';
+  import toastMessage from '../toaster.ts';
 
   export let location: any;
   export let navigate: any;
@@ -94,7 +95,26 @@
     });
   }
 
-  function removeCategory(category: CategoryType) {
+  async function countExpenseByCategory(id: number) {
+    return new Promise((resolve, reject) => {
+      function listener(data) {
+        if (data.result != null) {
+          resolve(data.result);
+        } else if (data.error) {
+          reject(data.error);
+        }
+        idbWorkerEventEmitter.removeListener(IDB_EVENT.EXPENSE_COUNT_CATEGORY, listener);
+      }
+      idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_COUNT_CATEGORY, listener);
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_COUNT_CATEGORY, params: { category: id } });
+    });
+  }
+
+  async function removeCategory(category: CategoryType) {
+    const count = await countExpenseByCategory(category.id);
+    if (count > 0) {
+      toastMessage(`${count} expenses under ${category.name}`);return;
+    }
     dialog = new Dialog({
       target: document.body,
       props: {
