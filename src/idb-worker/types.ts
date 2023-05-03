@@ -36,5 +36,5 @@ export interface ExpenseType {
   datetime: Date, // UTC
   category: number,
   description: string,
-  attachment: number,
+  attachment?: number,
 }

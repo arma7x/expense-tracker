@@ -2,9 +2,10 @@
 
   import { onMount, onDestroy } from 'svelte';
   import { createKaiNavigator } from '../../utils/navigation.ts';
-  import { SoftwareKey, TextInputField, Toast, Toaster } from '../../components/index.ts';
+  import { SoftwareKey, TextInputField } from '../../components/index.ts';
   import EventEmitter from 'events';
   import { IDB_EVENT } from '../../idb-worker/types';
+  import toastMessage from '../../toaster.ts';
 
   export let title: string = 'Modal';
   export let id: number | null;
@@ -58,26 +59,6 @@
     if (data.result) {
       onSuccess(data.result);
     }
-  }
-
-  function toastMessage(text) {
-    console.log(text);
-    const t = new Toast({
-      target: document.body,
-      props: {
-        options: {}
-      }
-    })
-    Toaster.push(text , {
-      dismissable: false,
-      intro: { y: -64 },
-      duration: 2000,
-      onpop: () => {
-        setTimeout(() => {
-          t.$destroy();
-        }, 4000);
-      }
-    })
   }
 
   onMount(() => {
