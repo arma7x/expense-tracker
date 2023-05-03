@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { IDB_EVENT } from './enums';
+import { IDB_EVENT } from './types';
 import { idbWorkerEventEmitter } from './worker-client';
 
 const testIdbWorker = new Worker('/worker.js');

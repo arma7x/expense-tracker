@@ -1,7 +1,7 @@
 import type { DBSchema } from 'idb';
 import { openDB, deleteDB } from 'idb/with-async-ittr';
 
-import { IDB_EVENT } from './enums';
+import { IDB_EVENT } from './types';
 
 const TABLE_ATTACHMENT  = 'attachments';
 const TABLE_CATEGORY    = 'categories';

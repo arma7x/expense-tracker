@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { IDB_EVENT } from './enums';
+import { IDB_EVENT } from './types';
 import { idbWorker, idbWorkerEventEmitter } from './worker-client';
 
 const CATEGORIES_STORE = writable({});

@@ -17,3 +17,8 @@ export enum IDB_EVENT {
   EXPENSE_UPDATE        = 'EXPENSE_UPDATE',
   EXPENSE_DELETE        = 'EXPENSE_DELETE',
 }
+
+export interface Attachment {
+  mime: string,
+  arraybuffer: ArrayBuffer,
+}

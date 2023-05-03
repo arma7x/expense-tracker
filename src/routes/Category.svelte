@@ -4,7 +4,7 @@
   import { onMount, onDestroy } from 'svelte';
   import CategoryEditor from './modals/CategoryEditor.svelte';
   import EventEmitter from 'events';
-  import { IDB_EVENT  } from '../idb-worker/enums';
+  import { IDB_EVENT  } from '../idb-worker/types';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore.ts';
   import { ListView, Dialog } from '../components/index.ts';
 

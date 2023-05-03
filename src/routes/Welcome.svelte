@@ -5,7 +5,7 @@
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
 
-  import { IDB_EVENT  } from '../idb-worker/enums';
+  import { IDB_EVENT  } from '../idb-worker/types';
 
   export let location: any;
   export let navigate: any;
