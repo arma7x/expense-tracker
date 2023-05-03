@@ -17,14 +17,13 @@
   export let idbWorkerEventEmitter: EventEmitter;
 
   let name: string = 'Weekly Statistic';
+  let categoriesList : {[key:number]: CategoryType} = {};
   let weeklyExpenses: ExpenseType[] = [];
 
   let expenseEditorModal: ExpenseEditor;
   let lskMenu: OptionMenu;
 
   let navOptions = {
-    verticalNavClass: 'vertClass',
-    horizontalNavClass: 'horzClass',
     softkeyLeftListener: function(evt) {
       openLSKMenu();
     },
@@ -95,7 +94,7 @@
         datetime: expense != null ? new Date(expense.datetime) : new Date(),
         category: expense != null ? expense.category : 0,
         description: expense != null ? expense.description : '',
-        attachment: expense != null ? expense.attachment : '',
+        attachment: expense != null ? expense.attachment : -1,
         categories: get(CATEGORIES_STORE),
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
@@ -117,14 +116,41 @@
     });
   }
 
+  function getWeekRange() {
+    let begin = new Date();
+    let tz = (begin.getTimezoneOffset() / 60) * 60 * 60 * 1000;
+    begin.setUTCHours(0);begin.setUTCMinutes(0);begin.setUTCSeconds(0);begin.setUTCMilliseconds(0);
+    begin  = new Date(begin.getTime() - ((begin.getDay() - 1) * 24 * 60 * 60 * 1000))
+    begin = new Date(begin.getTime() + tz);
+    let end = new Date(begin.getTime() + (6 * 24 * 60 * 60 * 1000));
+    end.setUTCHours(23);end.setUTCMinutes(59);end.setUTCSeconds(59);end.setUTCMilliseconds(999);
+    end = new Date(end.getTime() + tz);
+    return { begin, end };
+  }
+
   function onInitialize(data) {
     if (data.result) {
       console.log("idb-worker status:", data.result);
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getWeekRange() });
     } else if (data.error) {
       console.error(data.error);
     }
   }
+
+  function onGetWeeklyExpense(data) {
+    if (data.result) {
+      weeklyExpenses = data.result;
+      console.log('weeklyExpenses', weeklyExpenses);
+    } else if (data.error) {
+      console.error(data.error);
+    }
+  }
+
+  const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
+    categoriesList = categories;
+    console.log('categoriesList', categoriesList);
+  });
 
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
@@ -132,50 +158,26 @@
     softwareKey.setText({ left: 'Menu', center: 'ADD', right: 'Expenses' });
     navInstance.attachListener();
     idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
+    idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_GET_RANGE, onGetWeeklyExpense);
     idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });
   });
 
   onDestroy(() => {
     navInstance.detachListener();
     idbWorkerEventEmitter.removeListener(IDB_EVENT.INITIALIZE, onInitialize);
+    idbWorkerEventEmitter.removeListener(IDB_EVENT.EXPENSE_GET_RANGE, onGetWeeklyExpense);
+    unsubscribeCategoryStore();
   });
 
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
   <h1>{name}!</h1>
-  <div class="vertical">
-    <div class="vertClass">Vertical 1</div>
-    <div class="vertClass">Vertical 2</div>
-  </div>
-  <div class="horizontal">
-    <div style="flex:1;" class="horzClass">Horizontal 1</div>
-    <div style="flex:1;" class="horzClass">Horizontal 2</div>
-  </div>
 </main>
 
 <style>
   #welcome-screen {
     overflow: scroll;
     width: 100%;
-  }
-  #welcome-screen > .vertical {
-    display:flex;
-    flex-direction:column;
-  }
-  #welcome-screen > .horizontal {
-    width:100%;
-    display:flex;
-    flex-direction:row;
-  }
-  :global(#welcome-screen > .vertical > .vertClass)
-  :global(#welcome-screen > .vertical > .horizontal) {
-    background-color: #ffffff;
-    color: #000000;
-  }
-  :global(#welcome-screen > .vertical > .vertClass.focus),
-  :global(#welcome-screen > .horizontal > .horzClass.focus) {
-    background-color: red!important;
-    color: #fff!important;
   }
 </style>

@@ -13,7 +13,7 @@
   export let datetime: Date = new Date();
   export let category: number = 0;
   export let description: string = '';
-  export let attachment: number | null;
+  export let attachment: number = -1;
   export let categories: {[key:number]: CategoryType} = {};
   export let idbWorker: Worker;
   export let idbWorkerEventEmitter: EventEmitter;
@@ -27,8 +27,9 @@
   let softwareKey: SoftwareKey;
   let datePicker: DatePicker;
   let timePicker: DatePicker;
+  let categoriesMenu: OptionMenu;
 
-  let categoryName: string;
+  let categoriesOptions: {[key: string]: any}[] = [];
   let date: string;
   let time: string;
 
@@ -48,7 +49,7 @@
     },
     arrowUpListener: function(evt) {
       this.navigateListNav(-1);
-      if ([1, 2].indexOf(this.verticalNavIndex) > -1) {
+      if ([1, 2, 3].indexOf(this.verticalNavIndex) > -1) {
         softwareKey.setCenterText('SELECT');
       } else {
         softwareKey.setCenterText('');
@@ -56,7 +57,7 @@
     },
     arrowDownListener: function(evt) {
       this.navigateListNav(1);
-      if ([1, 2].indexOf(this.verticalNavIndex) > -1) {
+      if ([1, 2, 3].indexOf(this.verticalNavIndex) > -1) {
         softwareKey.setCenterText('SELECT');
       } else {
         softwareKey.setCenterText('');
@@ -71,20 +72,15 @@
   let navInstance = createKaiNavigator(navOptions);
 
   function addOrUpdateExpense() {
-    console.log(datetime.toLocaleString(), datetime.toUTCString());
-    //name = name.trim();
-    //color = color.trim();
-    //if (name == '') {
-      //toastMessage('Name required');return;
-    //}
-    //if (color == '') {
-      //toastMessage('Color required');return;
-    //}
-    //if (id == null) {
-      //idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_ADD, params: { name, color } });
-    //} else {
-      //idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_UPDATE, params: { id, name, color } });
-    //}
+    const expenseObj: ExpenseType = { id, amount: amount == '' ? 0 : parseFloat(amount), datetime, category, description, attachment };
+    if (expenseObj.amount <= 0) {
+      toastMessage('Amount must greater than 0');return;
+    }
+    if (expenseObj.id == null) {
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_ADD, params: expenseObj });
+    } else {
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_UPDATE, params: expenseObj });
+    }
   }
 
   function openDatePicker() {
@@ -152,9 +148,41 @@
     });
   }
 
+  function openCategoriesMenu() {
+    categoriesMenu = new OptionMenu({
+      target: document.body,
+      props: {
+        title: 'Select Category',
+        focusIndex: Object.keys(categories).indexOf(category.toString()) | 0,
+        options: categoriesOptions,
+        softKeyCenterText: 'select',
+        onSoftkeyRight: (evt, scope) => {},
+        onSoftkeyLeft: (evt, scope) => {},
+        onEnter: (evt, scope) => {
+          category = parseInt(Object.keys(categories)[scope.index]);
+          categoriesMenu.$destroy();
+        },
+        onBackspace: (evt, scope) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          categoriesMenu.$destroy();
+        },
+        onOpened: () => {
+          navInstance.detachListener();
+        },
+        onClosed: (scope) => {
+          navInstance.attachListener();
+          categoriesMenu = null;
+        }
+      }
+    });
+  }
+
   function addOrUpdateEvent(data) {
     if (data.result) {
       onSuccess(data.result);
+    } else if (data.error) {
+      toastMessage(data.error.toString());
     }
   }
 
@@ -172,12 +200,11 @@
         rightText: 'Cancel'
       }
     });
-    if (categories[category]) {
-      categoryName = categories[category].name;
-    } else {
-      categoryName = 'General';
-    }
-    console.log(categoryName, categories);
+    categories[0] = { id: 0, name: 'General' };
+    const keys: number[] = Object.keys(categories);
+    keys.forEach(key => {
+      categoriesOptions.push({ title: categories[key].name });
+    });
   })
 
   onDestroy(() => {
@@ -189,7 +216,14 @@
   })
 
   function onInput(evt) {
-    // evt.target.value
+    switch (navInstance.verticalNavIndex) {
+      case 0:
+        amount = parseFloat(evt.target.value);
+        break;
+      case 4:
+        description = evt.target.value;
+        break;
+    }
   }
 
   function onFocus(evt) {}
@@ -205,13 +239,14 @@
     <div class="kai-dialog-header">{title}</div>
     <div class="kai-dialog-body">
       <TextInputField className="{navClass}" label={null} placeholder="Amount" value="{amount}" type="tel" {onInput} {onFocus} {onBlur} />
+      <ListView className="{navClass}" title="Category" subtitle="{categories[category] != null ? categories[category].name : ''}" onClick={openCategoriesMenu}/>
       <ListView className="{navClass}" title="Date Picker" subtitle="{datetime.toDateString()}" onClick={openDatePicker}>
         <span slot="rightWidget" class="kai-icon-calendar" style="font-size:20px;"></span>
       </ListView>
       <ListView className="{navClass}" title="Time Picker" subtitle="{datetime.toLocaleTimeString()}" onClick={openTimePicker}>
         <span slot="rightWidget" class="kai-icon-favorite-on" style="font-size:20px;"></span>
       </ListView>
-      <TextAreaField className="{navClass}" label={null} placeholder="Description" value="{description}" type="text" rows={2} {onInput} {onFocus} {onBlur}/>
+      <TextAreaField className="{navClass}" label={null} placeholder="Description" value="{description}" type="text" rows={4} {onInput} {onFocus} {onBlur}/>
     </div>
   </div>
 </div>
