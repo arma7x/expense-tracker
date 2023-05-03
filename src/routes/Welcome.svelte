@@ -28,10 +28,10 @@
       openLSKMenu();
     },
     softkeyRightListener: function(evt) {
-      console.log('softkeyRightListener', name);
+      openExpenseEditorModal(null);
     },
     enterListener: function(evt) {
-      openExpenseEditorModal(null);
+      // expenses list
     },
     backspaceListener: function(evt) {
       console.log('backspaceListener', name);
@@ -138,10 +138,30 @@
     }
   }
 
+  function groupExpenseByCategory() {
+    let byCategory = {};
+    if (weeklyExpenses.length === 0)
+      return;
+    weeklyExpenses.forEach((expense) => {
+      const category: CategoryType = categoriesList[expense.category];
+      if (category) {
+        if (byCategory[category.name] == null)
+          byCategory[category.name] = { label: category.name, backgroundColor: expense.color, data: 0 };
+        byCategory[category.name].data += expense.amount;
+      } else {
+        if (byCategory['General'] == null)
+          byCategory['General'] = { label: 'General', backgroundColor: '#ff3e00', data: 0 };
+        byCategory['General'].data += expense.amount;
+      }
+    });
+    console.log('groupExpenseByCategory', byCategory);
+  }
+
   function onGetWeeklyExpense(data) {
     if (data.result) {
       weeklyExpenses = data.result;
       console.log('weeklyExpenses', weeklyExpenses);
+      groupExpenseByCategory();
     } else if (data.error) {
       console.error(data.error);
     }
@@ -150,12 +170,13 @@
   const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
     categoriesList = categories;
     console.log('categoriesList', categoriesList);
+    groupExpenseByCategory();
   });
 
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
-    softwareKey.setText({ left: 'Menu', center: 'ADD', right: 'Expenses' });
+    softwareKey.setText({ left: 'Menu', center: 'EXPENSES', right: 'Add' });
     navInstance.attachListener();
     idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
     idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_GET_RANGE, onGetWeeklyExpense);
