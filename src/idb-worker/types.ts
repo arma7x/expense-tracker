@@ -18,19 +18,19 @@ export enum IDB_EVENT {
   EXPENSE_DELETE          = 'EXPENSE_DELETE',
 }
 
-export interface AttachmentType {
+export interface TypeAttachment {
   id?: number,
   mime: string,
   arraybuffer: ArrayBuffer,
 }
 
-export interface CategoryType {
+export interface TypeCategory {
   id?: number,
   name: string,
   color: string,
 }
 
-export interface ExpenseType {
+export interface TypeExpense {
   id?: number,
   amount: number,
   datetime: Date, // UTC

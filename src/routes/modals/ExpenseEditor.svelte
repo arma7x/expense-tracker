@@ -4,7 +4,7 @@
   import { createKaiNavigator } from '../../utils/navigation.ts';
   import { SoftwareKey, TextInputField, TextAreaField, DatePicker, TimePicker, ListView, OptionMenu } from '../../components/index.ts';
   import EventEmitter from 'events';
-  import { IDB_EVENT, CategoryType, ExpenseType } from '../../idb-worker/types';
+  import { IDB_EVENT, TypeCategory, TypeExpense } from '../../idb-worker/types';
   import toastMessage from '../../toaster.ts';
 
   export let title: string = 'Modal';
@@ -14,7 +14,7 @@
   export let category: number = 0;
   export let description: string = '';
   export let attachment: number = -1;
-  export let categories: {[key:number]: CategoryType} = {};
+  export let categories: {[key:number]: TypeCategory} = {};
   export let idbWorker: Worker;
   export let idbWorkerEventEmitter: EventEmitter;
   export let onSuccess: Function = (passcode: string) => {};
@@ -72,7 +72,7 @@
   let navInstance = createKaiNavigator(navOptions);
 
   function addOrUpdateExpense() {
-    const expenseObj: ExpenseType = { id, amount: amount == '' ? 0 : parseFloat(amount), datetime, category, description, attachment };
+    const expenseObj: TypeExpense = { id, amount: amount == '' ? 0 : parseFloat(amount), datetime, category, description, attachment };
     if (expenseObj.amount <= 0) {
       toastMessage('Amount must greater than 0');return;
     }

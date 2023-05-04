@@ -7,7 +7,7 @@
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
 
-  import { IDB_EVENT, CategoryType, ExpenseType  } from '../idb-worker/types';
+  import { IDB_EVENT, TypeCategory, TypeExpense  } from '../idb-worker/types';
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
 
@@ -23,8 +23,8 @@
   const navClass: string = "navWelcome";
 
   let name: string = 'Weekly Statistic';
-  let categoriesList: {[key:number]: CategoryType} = {};
-  let weeklyExpenses: ExpenseType[] = [];
+  let categoriesList: {[key:number]: TypeCategory} = {};
+  let weeklyExpenses: TypeExpense[] = [];
   let columns = [];
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
@@ -108,7 +108,7 @@
     });
   }
 
-  function openExpenseEditorModal(expense: ExpenseType | null) {
+  function openExpenseEditorModal(expense: TypeExpense | null) {
     expenseEditorModal = new ExpenseEditor({
       target: document.body,
       props: {
@@ -186,7 +186,7 @@
     if (weeklyExpenses.length === 0)
       return;
     weeklyExpenses.forEach((expense) => {
-      const category: CategoryType = categoriesList[expense.category];
+      const category: TypeCategory = categoriesList[expense.category];
       if (category) {
         if (byCategory[category.name] == null)
           byCategory[category.name] = { label: category.name, color: category.color, value: 0, expenses: [] };
@@ -215,7 +215,7 @@
     }, 300);
   }
 
-  function onClickCategory(name: string, expenses: Array<ExpenseType>) {
+  function onClickCategory(name: string, expenses: Array<TypeExpense>) {
     console.log(name, expenses);
   }
 
