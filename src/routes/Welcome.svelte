@@ -9,7 +9,9 @@
 
   import { IDB_EVENT, TypeCategory, TypeExpense  } from '../idb-worker/types';
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
+  import RangePicker from './modals/RangePicker.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
+  import toastMessage from '../toaster.ts';
 
   import bb, { donut } from "billboard.js";
   import "billboard.js/dist/billboard.min.css";
@@ -31,6 +33,7 @@
   let focusChart: bool = false;
 
   let expenseEditorModal: ExpenseEditor;
+  let rangePickerModal: RangePicker;
   let lskMenu: OptionMenu;
 
   let navOptions = {
@@ -88,8 +91,8 @@
             case 0:
               goto('manage-category');
               break;
-            case 2:
-
+            case 1:
+              selectCustomRange();
               break;
             case 6:
               window.close();
@@ -144,15 +147,54 @@
     });
   }
 
+  function selectCustomRange() {
+    rangePickerModal = new RangePicker({
+      target: document.body,
+      props: {
+        title: 'Custom Range',
+        begin: new Date(),
+        end: new Date(),
+        onSuccess: (result: any) => {
+          if (result != null) {
+            if (result.end > result.begin || result.end.toLocaleDateString() == result.begin.toLocaleDateString()) {
+              const begin = setBegin(result.begin);
+              const end = setEnd(result.end);
+              idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
+            } else {
+              toastMessage("Invalid range");
+            }
+          }
+          rangePickerModal.$destroy();
+        },
+        onOpened: () => {
+          navInstance.detachListener();
+        },
+        onClosed: () => {
+          navInstance.attachListener();
+          rangePickerModal = null;
+        }
+      }
+    });
+  }
+
+  function setBegin(date: Date): Date {
+    let tz = (date.getTimezoneOffset() / 60) * 60 * 60 * 1000;
+    date.setUTCDate(1);date.setUTCHours(0);date.setUTCMinutes(0);date.setUTCSeconds(0);date.setUTCMilliseconds(0);
+    return new Date(date.getTime() - tz);
+  }
+
+  function setEnd(date: Date): Date {
+    let tz = (date.getTimezoneOffset() / 60) * 60 * 60 * 1000;
+    date.setUTCHours(23);date.setUTCMinutes(59);date.setUTCSeconds(59);date.setUTCMilliseconds(999);
+    return new Date(date.getTime() - tz);
+  }
+
   function getMonthRange() {
     let begin = new Date();
-    let tz = (begin.getTimezoneOffset() / 60) * 60 * 60 * 1000;
-    begin.setDate(1);begin.setUTCHours(0);begin.setUTCMinutes(0);begin.setUTCSeconds(0);begin.setUTCMilliseconds(0);
-    begin = new Date(begin.getTime() + tz);
+    begin = setBegin(begin);
     const max = new Date(begin.getUTCFullYear(), begin.getUTCMonth(), 0).getDate()
     let end = new Date(begin.getTime() + (max * 24 * 60 * 60 * 1000));
-    end.setUTCHours(23);end.setUTCMinutes(59);end.setUTCSeconds(59);end.setUTCMilliseconds(999);
-    end = new Date(end.getTime() + tz);
+    end = setEnd(end);
     return { begin, end };
   }
 
@@ -227,7 +269,6 @@
 
   function onInitialize(data) {
     if (data.result) {
-      // console.log("idb-worker status:", data.result);
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
       idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getMonthRange() });
     } else if (data.error) {
@@ -237,8 +278,8 @@
 
   function onWeeklyExpense(data) {
     if (data.result) {
-      expenseList = data.result;
-      groupExpenseByCategory(getMonthRange());
+      expenseList = data.result.list;
+      groupExpenseByCategory({ begin: data.result.begin, end: data.result.end });
     } else if (data.error) {
       console.error(data.error);
     }

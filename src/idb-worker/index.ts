@@ -226,7 +226,14 @@ self.onmessage = async (e) => {
       try {
         const keyRange = IDBKeyRange.bound(e.data.params.begin, e.data.params.end);
         let result = await database.getAllFromIndex(TABLE_EXPENSE, 'by-datetime', keyRange);
-        self.postMessage({ type: e.data.type, result: result });
+        self.postMessage({
+          type: e.data.type,
+          result: {
+            list: result,
+            begin: e.data.params.begin,
+            end: e.data.params.end,
+          }
+        });
       } catch (err) {
         self.postMessage({ type: e.data.type, error: err.toString() });
       }
