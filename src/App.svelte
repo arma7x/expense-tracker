@@ -7,6 +7,7 @@
 
   import Category from "./routes/Category.svelte";
   import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
+  import toastMessage from './toaster.ts';
   import './idb-worker/categoriesStore';
   // import { runTest } from './idb-worker/test';
 
@@ -19,6 +20,7 @@
   }
 
   onMount(async() => {
+    toastMessage("Press Call to focus chart");
     //try {
       //await runTest();
     //} catch (err) {

@@ -273,12 +273,18 @@
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
-  <div id="donutChart"></div>
-  {#each columns as item }
-    <ListView className="{navClass}" title="{item[0]}[{byCategory[item[0]].expenses.length}]" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
-      <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
-    </ListView>
-  {/each}
+  {#if columns.length > 0}
+    <div id="donutChart"></div>
+    {#each columns as item }
+      <ListView className="{navClass}" title="{item[0]}[{byCategory[item[0]].expenses.length}]" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
+        <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
+      </ListView>
+    {/each}
+  {:else}
+    <div class="container" style="height:100%;display:flex;align-items:center;justify-content:center;">
+      Press `Add` button to insert expense
+    </div>
+  {/if}
 </main>
 
 <style>

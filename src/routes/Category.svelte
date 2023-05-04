@@ -164,7 +164,7 @@
   {#if Object.keys(categoryList).length > 0}
     {#each Object.keys(categoryList) as key }
       <ListView key="{key}" className="{navClass}" title="{categoryList[key].name}" subtitle="{categoryList[key].color}" onClick={() => openCategoryEditorModal(categoryList[key])}>
-        <span slot="leftWidget" class="kai-icon-favorite-on" style="color:{categoryList[key].color};margin-right:20px;"></span>
+        <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{categoryList[key].color};margin-right:5px;padding:8px;border-radius:50%;"></span>
       </ListView>
     {/each}
   {:else}
