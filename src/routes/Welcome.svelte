@@ -195,7 +195,7 @@
     try {
       const canvas = await html2canvas(container);
       canvas.toBlob((blob) => {
-        saveAs(blob, `${new Date().getTime().toString()}.png`);
+        saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
         container.style.height = '';
       });
     } catch (err) {
