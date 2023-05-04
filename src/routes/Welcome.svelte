@@ -10,6 +10,9 @@
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
 
+  import bb, { donut } from "billboard.js";
+  import "billboard.js/dist/billboard.min.css";
+
   export let location: any;
   export let navigate: any;
   export let getAppProp: Function;
@@ -22,6 +25,8 @@
 
   let expenseEditorModal: ExpenseEditor;
   let lskMenu: OptionMenu;
+
+  let billboardChart: typeof bb.generate;
 
   let navOptions = {
     softkeyLeftListener: function(evt) {
@@ -138,6 +143,46 @@
     }
   }
 
+  function drawPieChart(total: number = 0,colums, colors) {
+    try {
+      billboardChart = bb.generate({
+        data: {
+          type: donut(),
+          columns: [
+            ["Mobile Devices Motorola", 30],
+            ["Tablets Alcatel", 120],
+            ["Windows Desktops", 70]
+          ],
+          colors: {
+            'Mobile Devices Motorola': "#3DB93D",
+            'Tablets Alcatel': "#930C0C",
+            'Windows Desktops': "#4776A3",
+          }
+        },
+        donut: {
+          title: "$" + "220",
+          label: {
+            show: true,
+            position: 'inset',
+            format: function(value, ratio, id) {
+              return "$" + value;
+            },
+          },
+        },
+        legend: {
+          show: true,
+          contents: {
+            bindto: "#donutLegend",
+          }
+        },
+        bindto: "#donutChart"
+      });
+    } catch (err) {
+      console.error(1, err);
+    }
+
+  }
+
   function groupExpenseByCategory() {
     let byCategory = {};
     if (weeklyExpenses.length === 0)
@@ -155,6 +200,7 @@
       }
     });
     console.log('groupExpenseByCategory', byCategory);
+    setTimeout(drawPieChart, 1000);
   }
 
   function onGetWeeklyExpense(data) {
@@ -193,12 +239,21 @@
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
-  <h3>{weeklyExpenses.length}!</h3>
+  <div id="donutLegend"></div>
+  <div id="donutChart"></div>
 </main>
 
 <style>
   #welcome-screen {
     overflow: scroll;
     width: 100%;
+  }
+  #welcome-screen > #donutLegend {
+    margin-top: 5px;
+  }
+  #welcome-screen > #donutChart {
+    width: 232px;
+    overflow-y: hidden;
+    margin-top: -25px;
   }
 </style>
