@@ -55,7 +55,7 @@
     },
     enterListener: function(evt) {
       const navClasses = document.getElementsByClassName(navClass);
-      if (navClasses[this.verticalNavIndex] != null && this.verticalNavIndex > 0) {
+      if (navClasses[this.verticalNavIndex] != null) {
         navClasses[this.verticalNavIndex].click();
       }
     },
@@ -275,7 +275,7 @@
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
   <div id="donutChart"></div>
   {#each columns as item }
-    <ListView className="{navClass}" title="{item[0]}" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
+    <ListView className="{navClass}" title="{item[0]}[{byCategory[item[0]].expenses.length}]" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
       <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
     </ListView>
   {/each}
