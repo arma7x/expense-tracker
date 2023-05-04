@@ -25,6 +25,7 @@
   let name: string = 'Weekly Statistic';
   let categoriesList: {[key:number]: CategoryType} = {};
   let weeklyExpenses: ExpenseType[] = [];
+  let columns = [];
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
   let focusChart: bool = false;
@@ -180,6 +181,7 @@
   }
 
   function groupExpenseByCategory(timeline) {
+    columns = [];
     byCategory = {};
     if (weeklyExpenses.length === 0)
       return;
@@ -197,14 +199,16 @@
         byCategory['General'].expenses.push(expense);
       }
     });
-    let columns = [];
     let colors = {};
     let total: number = 0;
     Object.keys(byCategory).forEach(key => {
       const category = byCategory[key];
-      columns.push([category.label, category.value]);
+      columns.push([category.label, category.value, category.color]);
       colors[category.label] = category.color;
       total += category.value;
+    });
+    columns.sort((a, b) => {
+      return a[1] < b[1];
     });
     setTimeout(() => {
       drawPieChart(timeline, "$", total, columns, colors);
@@ -270,9 +274,9 @@
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
   <div id="donutChart"></div>
-  {#each Object.keys(byCategory) as key }
-    <ListView className="{navClass}" title="{byCategory[key].label}({byCategory[key].expenses.length})" subtitle="${byCategory[key].value}" onClick={() => onClickCategory(byCategory[key].label, byCategory[key].expenses)}>
-      <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{byCategory[key].color};margin-right:5px;padding:8px;border-radius:50%;"></span>
+  {#each columns as item }
+    <ListView className="{navClass}" title="{item[0]}" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
+      <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
     </ListView>
   {/each}
 </main>
