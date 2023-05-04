@@ -36,6 +36,8 @@
     "@zerodevx/svelte-toast": "^0.6.3",
     "billboard.js": "^3.8.1",
     "events": "^3.3.0",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
     "idb": "^7.1.1",
     "sirv-cli": "^1.0.0",
     "sprintf-js": "^1.1.2",

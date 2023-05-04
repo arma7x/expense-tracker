@@ -12,6 +12,9 @@
   import RangePicker from './modals/RangePicker.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
   import toastMessage from '../toaster.ts';
+  import { saveAs } from 'file-saver';
+  import html2canvas from 'html2canvas';
+
 
   import bb, { donut } from "billboard.js";
   import "billboard.js/dist/billboard.min.css";
@@ -94,6 +97,9 @@
             case 1:
               selectCustomRange();
               break;
+            case 3:
+              screenshot();
+              break;
             case 6:
               window.close();
               break;
@@ -175,6 +181,24 @@
         }
       }
     });
+  }
+
+  async function screenshot() {
+    const container = document.querySelector("#welcome-screen");
+    let totalHeight = 0;
+    for (let i=0;i<container.children.length;i++) {
+      totalHeight += container.children[i].offsetHeight;
+    }
+    container.style.height = totalHeight + 'px';
+    try {
+      const canvas = await html2canvas(container);
+      canvas.toBlob((blob) => {
+        saveAs(blob, `${new Date().getTime().toString()}.png`);
+        container.style.height = '';
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   function setBegin(date: Date): Date {
