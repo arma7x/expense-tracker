@@ -119,7 +119,7 @@
         category: expense != null ? expense.category : 0,
         description: expense != null ? expense.description : '',
         attachment: expense != null ? expense.attachment : -1,
-        categories: get(CATEGORIES_STORE),
+        categories: {...get(CATEGORIES_STORE)},
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
