@@ -22,7 +22,7 @@
 
   const navClass: string = "navWelcome";
 
-  let name: string = 'Weekly Statistic';
+  let name: string = 'Expense Tracker';
   let categoriesList: {[key:number]: TypeCategory} = {};
   let weeklyExpenses: TypeExpense[] = [];
   let columns = [];
@@ -123,7 +123,7 @@
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
-          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getWeekRange() });
+          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getMonthRange() });
           expenseEditorModal.$destroy();
         },
         onError: (err: any) => {
@@ -140,13 +140,13 @@
     });
   }
 
-  function getWeekRange() {
+  function getMonthRange() {
     let begin = new Date();
     let tz = (begin.getTimezoneOffset() / 60) * 60 * 60 * 1000;
-    begin.setUTCHours(0);begin.setUTCMinutes(0);begin.setUTCSeconds(0);begin.setUTCMilliseconds(0);
-    begin  = new Date(begin.getTime() - ((begin.getDay() - 1) * 24 * 60 * 60 * 1000))
+    begin.setDate(1);begin.setUTCHours(0);begin.setUTCMinutes(0);begin.setUTCSeconds(0);begin.setUTCMilliseconds(0);
     begin = new Date(begin.getTime() + tz);
-    let end = new Date(begin.getTime() + (7 * 24 * 60 * 60 * 1000));
+    const max = new Date(begin.getUTCFullYear(), begin.getUTCMonth(), 0).getDate()
+    let end = new Date(begin.getTime() + (max * 24 * 60 * 60 * 1000));
     end.setUTCHours(23);end.setUTCMinutes(59);end.setUTCSeconds(59);end.setUTCMilliseconds(999);
     end = new Date(end.getTime() + tz);
     return { begin, end };
@@ -223,7 +223,7 @@
     if (data.result) {
       // console.log("idb-worker status:", data.result);
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
-      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getWeekRange() });
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getMonthRange() });
     } else if (data.error) {
       console.error(data.error);
     }
@@ -232,7 +232,7 @@
   function onWeeklyExpense(data) {
     if (data.result) {
       weeklyExpenses = data.result;
-      groupExpenseByCategory(getWeekRange());
+      groupExpenseByCategory(getMonthRange());
     } else if (data.error) {
       console.error(data.error);
     }
@@ -240,7 +240,7 @@
 
   const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
     categoriesList = categories;
-    groupExpenseByCategory(getWeekRange());
+    groupExpenseByCategory(getMonthRange());
   });
 
   function eventHandler(evt) {
