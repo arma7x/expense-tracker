@@ -13,7 +13,7 @@
   export let color: string = '';
   export let idbWorker: Worker;
   export let idbWorkerEventEmitter: EventEmitter;
-  export let onSuccess: Function = (passcode: string) => {};
+  export let onSuccess: Function = (o: any) => {};
   export let onError: Function = (error: any) => {};
   export let onOpened: Function = () => {};
   export let onClosed: Function = () => {};
