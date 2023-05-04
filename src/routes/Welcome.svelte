@@ -96,6 +96,8 @@
             case 0:
               goto('manage-category');
               break;
+            case 2:
+              exportToCSV();
             case 1:
               selectCustomRange();
               break;
@@ -153,6 +155,11 @@
         }
       }
     });
+  }
+
+  // TODO
+  function exportToCSV() {
+
   }
 
   function selectCustomRange() {
