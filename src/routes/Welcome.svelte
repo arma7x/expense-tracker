@@ -2,6 +2,7 @@
   import { Route, navigate as goto } from "svelte-navigator";
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
+  import { ListView } from '../components/index.ts';
   import { get } from 'svelte/store';
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
@@ -19,9 +20,12 @@
   export let idbWorker: Worker;
   export let idbWorkerEventEmitter: EventEmitter;
 
+  const navClass: string = "navWelcome";
+
   let name: string = 'Weekly Statistic';
-  let categoriesList : {[key:number]: CategoryType} = {};
+  let categoriesList: {[key:number]: CategoryType} = {};
   let weeklyExpenses: ExpenseType[] = [];
+  let byCategory: {[key:number]: any} = {};
 
   let expenseEditorModal: ExpenseEditor;
   let lskMenu: OptionMenu;
@@ -29,6 +33,7 @@
   let billboardChart: typeof bb.generate;
 
   let navOptions = {
+    verticalNavClass: navClass,
     softkeyLeftListener: function(evt) {
       openLSKMenu();
     },
@@ -36,11 +41,12 @@
       openExpenseEditorModal(null);
     },
     enterListener: function(evt) {
-      // expenses list
+      const navClasses = document.getElementsByClassName(navClass);
+      if (navClasses[this.verticalNavIndex] != null && this.verticalNavIndex > 0) {
+        navClasses[this.verticalNavIndex].click();
+      }
     },
-    backspaceListener: function(evt) {
-      console.log('backspaceListener', name);
-    }
+    backspaceListener: function(evt) {}
   };
 
   let navInstance = createKaiNavigator(navOptions);
@@ -68,7 +74,7 @@
             case 0:
               goto('manage-category');
               break;
-            case 4:
+            case 5:
               window.close();
               break;
           }
@@ -127,15 +133,79 @@
     begin.setUTCHours(0);begin.setUTCMinutes(0);begin.setUTCSeconds(0);begin.setUTCMilliseconds(0);
     begin  = new Date(begin.getTime() - ((begin.getDay() - 1) * 24 * 60 * 60 * 1000))
     begin = new Date(begin.getTime() + tz);
-    let end = new Date(begin.getTime() + (6 * 24 * 60 * 60 * 1000));
+    let end = new Date(begin.getTime() + (7 * 24 * 60 * 60 * 1000));
     end.setUTCHours(23);end.setUTCMinutes(59);end.setUTCSeconds(59);end.setUTCMilliseconds(999);
     end = new Date(end.getTime() + tz);
     return { begin, end };
   }
 
+  function drawPieChart(timeline, symbol: string = "$", total: number = 0, colums, colors) {
+    billboardChart = bb.generate({
+      data: {
+        type: donut(),
+        columns: colums,
+        colors: colors,
+      },
+      donut: {
+        title: timeline.begin.toLocaleDateString() + "\n" + timeline.end.toLocaleDateString() + "\nTotal: " + symbol + total.toString(),
+        label: {
+          show: true,
+          position: 'inset',
+          format: function(value, ratio, id) {
+            return symbol + value;
+          },
+        },
+      },
+      legend: {
+        show: false,
+      },
+      bindto: "#donutChart"
+    });
+    navInstance.verticalNavIndex = -1
+    setTimeout(() => {
+      navInstance.navigateListNav(1);
+    }, 300);
+  }
+
+  function groupExpenseByCategory(timeline) {
+    byCategory = {};
+    if (weeklyExpenses.length === 0)
+      return;
+    weeklyExpenses.forEach((expense) => {
+      const category: CategoryType = categoriesList[expense.category];
+      if (category) {
+        if (byCategory[category.name] == null)
+          byCategory[category.name] = { label: category.name, color: category.color, value: 0, expenses: [] };
+        byCategory[category.name].value += expense.amount;
+        byCategory[category.name].expenses.push(expense);
+      } else {
+        if (byCategory['General'] == null)
+          byCategory['General'] = { label: 'General', color: '#ff3e00', value: 0, expenses: [] };
+        byCategory['General'].value += expense.amount;
+        byCategory['General'].expenses.push(expense);
+      }
+    });
+    let columns = [];
+    let colors = {};
+    let total: number = 0;
+    Object.keys(byCategory).forEach(key => {
+      const category = byCategory[key];
+      columns.push([category.label, category.value]);
+      colors[category.label] = category.color;
+      total += category.value;
+    });
+    setTimeout(() => {
+      drawPieChart(timeline, "$", total, columns, colors);
+    }, 300);
+  }
+
+  function onClickCategory(name: string, expenses: Array<ExpenseType>) {
+    console.log(name, expenses);
+  }
+
   function onInitialize(data) {
     if (data.result) {
-      console.log("idb-worker status:", data.result);
+      // console.log("idb-worker status:", data.result);
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
       idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getWeekRange() });
     } else if (data.error) {
@@ -143,71 +213,10 @@
     }
   }
 
-  function drawPieChart(total: number = 0,colums, colors) {
-    try {
-      billboardChart = bb.generate({
-        data: {
-          type: donut(),
-          columns: [
-            ["Mobile Devices Motorola", 30],
-            ["Tablets Alcatel", 120],
-            ["Windows Desktops", 70]
-          ],
-          colors: {
-            'Mobile Devices Motorola': "#3DB93D",
-            'Tablets Alcatel': "#930C0C",
-            'Windows Desktops': "#4776A3",
-          }
-        },
-        donut: {
-          title: "$" + "220",
-          label: {
-            show: true,
-            position: 'inset',
-            format: function(value, ratio, id) {
-              return "$" + value;
-            },
-          },
-        },
-        legend: {
-          show: true,
-          contents: {
-            bindto: "#donutLegend",
-          }
-        },
-        bindto: "#donutChart"
-      });
-    } catch (err) {
-      console.error(1, err);
-    }
-
-  }
-
-  function groupExpenseByCategory() {
-    let byCategory = {};
-    if (weeklyExpenses.length === 0)
-      return;
-    weeklyExpenses.forEach((expense) => {
-      const category: CategoryType = categoriesList[expense.category];
-      if (category) {
-        if (byCategory[category.name] == null)
-          byCategory[category.name] = { label: category.name, backgroundColor: expense.color, data: 0 };
-        byCategory[category.name].data += expense.amount;
-      } else {
-        if (byCategory['General'] == null)
-          byCategory['General'] = { label: 'General', backgroundColor: '#ff3e00', data: 0 };
-        byCategory['General'].data += expense.amount;
-      }
-    });
-    console.log('groupExpenseByCategory', byCategory);
-    setTimeout(drawPieChart, 1000);
-  }
-
-  function onGetWeeklyExpense(data) {
+  function onWeeklyExpense(data) {
     if (data.result) {
       weeklyExpenses = data.result;
-      console.log('weeklyExpenses', weeklyExpenses);
-      groupExpenseByCategory();
+      groupExpenseByCategory(getWeekRange());
     } else if (data.error) {
       console.error(data.error);
     }
@@ -215,9 +224,15 @@
 
   const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
     categoriesList = categories;
-    console.log('categoriesList', categoriesList);
-    groupExpenseByCategory();
+    groupExpenseByCategory(getWeekRange());
   });
+
+  function eventHandler(evt) {
+    if (evt.key == "Call") {
+      const target = document.getElementById('welcome-screen')
+      target.scroll({ top: 0, behavior: 'smooth' });
+    }
+  }
 
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
@@ -225,22 +240,28 @@
     softwareKey.setText({ left: 'Menu', center: 'EXPENSES', right: 'Add' });
     navInstance.attachListener();
     idbWorkerEventEmitter.addListener(IDB_EVENT.INITIALIZE, onInitialize);
-    idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_GET_RANGE, onGetWeeklyExpense);
+    idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_GET_RANGE, onWeeklyExpense);
     idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });
+    document.addEventListener('keydown', eventHandler);
   });
 
   onDestroy(() => {
     navInstance.detachListener();
     idbWorkerEventEmitter.removeListener(IDB_EVENT.INITIALIZE, onInitialize);
-    idbWorkerEventEmitter.removeListener(IDB_EVENT.EXPENSE_GET_RANGE, onGetWeeklyExpense);
+    idbWorkerEventEmitter.removeListener(IDB_EVENT.EXPENSE_GET_RANGE, onWeeklyExpense);
     unsubscribeCategoryStore();
+    document.removeEventListener('keydown', eventHandler);
   });
 
 </script>
 
 <main id="welcome-screen" data-pad-top="28" data-pad-bottom="30">
-  <div id="donutLegend"></div>
   <div id="donutChart"></div>
+  {#each Object.keys(byCategory) as key }
+    <ListView className="{navClass}" title="{byCategory[key].label}({byCategory[key].expenses.length})" subtitle="${byCategory[key].value}" onClick={() => onClickCategory(byCategory[key].label, byCategory[key].expenses)}>
+      <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{byCategory[key].color};margin-right:5px;padding:8px;border-radius:50%;"></span>
+    </ListView>
+  {/each}
 </main>
 
 <style>
@@ -248,12 +269,9 @@
     overflow: scroll;
     width: 100%;
   }
-  #welcome-screen > #donutLegend {
-    margin-top: 5px;
-  }
   #welcome-screen > #donutChart {
     width: 232px;
+    height: 232px;
     overflow-y: hidden;
-    margin-top: -25px;
   }
 </style>
