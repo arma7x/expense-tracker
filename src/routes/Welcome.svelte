@@ -188,11 +188,13 @@
     weeklyExpenses.forEach((expense) => {
       const category: TypeCategory = categoriesList[expense.category];
       if (category) {
+        expense = { ...expense, category: category.name, color: category.color };
         if (byCategory[category.name] == null)
           byCategory[category.name] = { label: category.name, color: category.color, value: 0, expenses: [] };
         byCategory[category.name].value += expense.amount;
         byCategory[category.name].expenses.push(expense);
       } else {
+        expense = { ...expense, category: 'General', color: '#ff3e00' };
         if (byCategory['General'] == null)
           byCategory['General'] = { label: 'General', color: '#ff3e00', value: 0, expenses: [] };
         byCategory['General'].value += expense.amount;
