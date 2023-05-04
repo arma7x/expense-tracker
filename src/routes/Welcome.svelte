@@ -34,6 +34,8 @@
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
   let focusChart: bool = false;
+  let begin: Date;
+  let end: Date;
 
   let expenseEditorModal: ExpenseEditor;
   let rangePickerModal: RangePicker;
@@ -136,7 +138,7 @@
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
-          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getMonthRange() });
+          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
           expenseEditorModal.$destroy();
         },
         onError: (err: any) => {
@@ -163,8 +165,8 @@
         onSuccess: (result: any) => {
           if (result != null) {
             if (result.end > result.begin || result.end.toLocaleDateString() == result.begin.toLocaleDateString()) {
-              const begin = setBegin(result.begin);
-              const end = setEnd(result.end);
+              begin = setBegin(result.begin);
+              end = setEnd(result.end);
               idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
             } else {
               toastMessage("Invalid range");
@@ -202,21 +204,20 @@
   }
 
   function setBegin(date: Date): Date {
-    let tz = (date.getTimezoneOffset() / 60) * 60 * 60 * 1000;
-    date.setUTCDate(1);date.setUTCHours(0);date.setUTCMinutes(0);date.setUTCSeconds(0);date.setUTCMilliseconds(0);
-    return new Date(date.getTime() - tz);
+    date.setHours(0);date.setMinutes(0);date.setSeconds(0);date.setMilliseconds(0);
+    return new Date(date.getTime());
   }
 
   function setEnd(date: Date): Date {
-    let tz = (date.getTimezoneOffset() / 60) * 60 * 60 * 1000;
-    date.setUTCHours(23);date.setUTCMinutes(59);date.setUTCSeconds(59);date.setUTCMilliseconds(999);
-    return new Date(date.getTime() - tz);
+    date.setHours(23);date.setMinutes(59);date.setSeconds(59);date.setMilliseconds(999);
+    return new Date(date.getTime());
   }
 
   function getMonthRange() {
     let begin = new Date();
+    begin.setDate(1);
     begin = setBegin(begin);
-    const max = new Date(begin.getUTCFullYear(), begin.getUTCMonth(), 0).getDate()
+    const max = new Date(begin.getFullYear(), begin.getMonth(), 0).getDate();
     let end = new Date(begin.getTime() + (max * 24 * 60 * 60 * 1000));
     end = setEnd(end);
     return { begin, end };
@@ -294,7 +295,10 @@
   function onInitialize(data) {
     if (data.result) {
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
-      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: getMonthRange() });
+      const t = getMonthRange();
+      begin = t.begin;
+      end  = t.end;
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
     } else if (data.error) {
       console.error(data.error);
     }
@@ -311,7 +315,8 @@
 
   const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
     categoriesList = categories;
-    groupExpenseByCategory(getMonthRange());
+    if (begin != null && end != null)
+      groupExpenseByCategory({ begin, end });
   });
 
   function eventHandler(evt) {
