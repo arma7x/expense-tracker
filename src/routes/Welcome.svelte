@@ -24,7 +24,7 @@
 
   let name: string = 'Expense Tracker';
   let categoriesList: {[key:number]: TypeCategory} = {};
-  let weeklyExpenses: TypeExpense[] = [];
+  let expenseList: TypeExpense[] = [];
   let columns = [];
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
@@ -72,9 +72,10 @@
         focusIndex: 0,
         options: [
           { title: 'Categories', subtitle: 'Manage expense categories' },
-          { title: 'Detailed Statistics', subtitle: 'Generate expenses report' },
+          { title: 'Generate Custom Statistic', subtitle: 'Select custom date range' },
+          { title: 'Export Report To CSV', subtitle: 'Export expense list to CSV' },
+          { title: 'Screenshot Report', subtitle: 'Save chart and expense category as PNG' },
           { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
-          { title: 'Disclaimer Notice', subtitle: 'Notice of app usage' },
           { title: 'Changelogs', subtitle: 'Read release notes' },
           { title: 'Exit', subtitle: 'Close app' },
         ],
@@ -87,7 +88,10 @@
             case 0:
               goto('manage-category');
               break;
-            case 5:
+            case 2:
+
+              break;
+            case 6:
               window.close();
               break;
           }
@@ -183,9 +187,9 @@
   function groupExpenseByCategory(timeline) {
     columns = [];
     byCategory = {};
-    if (weeklyExpenses.length === 0)
+    if (expenseList.length === 0)
       return;
-    weeklyExpenses.forEach((expense) => {
+    expenseList.forEach((expense) => {
       const category: TypeCategory = categoriesList[expense.category];
       if (category) {
         expense = { ...expense, category: category.name, color: category.color };
@@ -233,7 +237,7 @@
 
   function onWeeklyExpense(data) {
     if (data.result) {
-      weeklyExpenses = data.result;
+      expenseList = data.result;
       groupExpenseByCategory(getMonthRange());
     } else if (data.error) {
       console.error(data.error);
@@ -278,7 +282,7 @@
   {#if columns.length > 0}
     <div id="donutChart"></div>
     {#each columns as item }
-      <ListView className="{navClass}" title="{item[0]}[{byCategory[item[0]].expenses.length}]" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
+      <ListView className="{navClass}" title="{item[0]} ({byCategory[item[0]].expenses.length})" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
         <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
       </ListView>
     {/each}
