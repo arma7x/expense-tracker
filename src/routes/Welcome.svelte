@@ -26,11 +26,11 @@
   let categoriesList: {[key:number]: CategoryType} = {};
   let weeklyExpenses: ExpenseType[] = [];
   let byCategory: {[key:number]: any} = {};
+  let billboardChart: typeof bb.generate;
+  let focusChart: bool = false;
 
   let expenseEditorModal: ExpenseEditor;
   let lskMenu: OptionMenu;
-
-  let billboardChart: typeof bb.generate;
 
   let navOptions = {
     verticalNavClass: navClass,
@@ -39,6 +39,18 @@
     },
     softkeyRightListener: function(evt) {
       openExpenseEditorModal(null);
+    },
+    arrowUpListener: function(evt) {
+      if (focusChart)
+        this.verticalNavIndex += 1;
+      focusChart = false;
+      this.navigateListNav(-1);
+    },
+    arrowDownListener: function(evt) {
+      if (focusChart)
+        this.verticalNavIndex -= 1;
+      focusChart = false;
+      this.navigateListNav(1);
     },
     enterListener: function(evt) {
       const navClasses = document.getElementsByClassName(navClass);
@@ -231,6 +243,7 @@
     if (evt.key == "Call") {
       const target = document.getElementById('welcome-screen')
       target.scroll({ top: 0, behavior: 'smooth' });
+      focusChart = true;
     }
   }
 
