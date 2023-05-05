@@ -290,16 +290,16 @@
     byCategory = {};
     if (expenseList.length === 0)
       return;
-    expenseList.forEach((expense) => {
-      const category: TypeCategory = categoriesList[expense.category];
+    expenseList.forEach((_expense) => {
+      const category: TypeCategory = categoriesList[_expense.category];
       if (category) {
-        expense = { ...expense, category: category.name, color: category.color };
+        const expense = { ..._expense };
         if (byCategory[category.name] == null)
           byCategory[category.name] = { label: category.name, color: category.color, value: 0, expenses: [] };
         byCategory[category.name].value += expense.amount;
         byCategory[category.name].expenses.push(expense);
       } else {
-        expense = { ...expense, category: 'General', color: '#ff3e00' };
+        const expense = { ..._expense };
         if (byCategory['General'] == null)
           byCategory['General'] = { label: 'General', color: '#ff3e00', value: 0, expenses: [] };
         byCategory['General'].value += expense.amount;
@@ -322,8 +322,8 @@
     }, 300);
   }
 
-  function onClickCategory(name: string, expenses: Array<TypeExpense>) {
-    goto('expense-list',  {state: { category: name, expenseList: expenses }});
+  function onClickCategory(category: any[], expenses: Array<TypeExpense>) {
+    goto('expense-list',  {state: { category: category, expenseList: expenses }});
   }
 
   function onInitialize(data) {
@@ -402,7 +402,7 @@
   {#if columns.length > 0}
     <div id="donutChart"></div>
     {#each columns as item }
-      <ListView className="{navClass}" title="{item[0]} ({byCategory[item[0]].expenses.length})" subtitle="${item[1]}" onClick={() => onClickCategory(item[0], byCategory[item[0]].expenses)}>
+      <ListView className="{navClass}" title="{item[0]} ({byCategory[item[0]].expenses.length})" subtitle="${item[1]}" onClick={() => onClickCategory(item, byCategory[item[0]].expenses)}>
         <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
       </ListView>
     {/each}
