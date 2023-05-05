@@ -181,7 +181,7 @@
 <main id="expense-list-screen" data-pad-top="28" data-pad-bottom="30">
   {#each expenseList as expense }
     <ListView className="{navClass}" title="{trimDatetime(expense.datetime)}" subtitle="{expense.description}">
-      <span slot="rightWidget" style="border:1px solid var(--themeColor);background-color:#fff;color:#000;padding:0 4px;border-radius:3px;">${expense.amount}</span>
+      <span slot="rightWidget" style="border:1px solid var(--themeColor);background-color:#fff;color:#000;padding:0 4px;border-radius:3px;">{expense.amount}</span>
     </ListView>
   {/each}
 </main>

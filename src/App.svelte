@@ -25,6 +25,8 @@
     //} catch (err) {
       //console.error(err);
     //}
+    if (window.localStorage.getItem("CURRENCY") == null)
+      window.localStorage.setItem("CURRENCY", "$");
   });
 
 </script>

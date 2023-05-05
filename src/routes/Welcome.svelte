@@ -2,7 +2,7 @@
   import { Route, navigate as goto } from "svelte-navigator";
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
-  import { ListView } from '../components/index.ts';
+  import { ListView, TextInputDialog } from '../components/index.ts';
   import { get } from 'svelte/store';
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
@@ -36,10 +36,12 @@
   let focusChart: bool = false;
   let begin: Date;
   let end: Date;
+  let currencyUnit: string = window.localStorage.getItem("CURRENCY");
 
   let expenseEditorModal: ExpenseEditor;
   let rangePickerModal: RangePicker;
   let lskMenu: OptionMenu;
+  let textInputDialog: TextInputDialog;
 
   let navOptions = {
     verticalNavClass: navClass,
@@ -82,6 +84,7 @@
           { title: 'Custom Date Range', subtitle: 'Select the date range to generate the report' },
           { title: 'Export Expense To CSV', subtitle: 'Export report and expense list to CSV' },
           { title: 'Screenshot Report', subtitle: 'Save chart and expense category as PNG' },
+          { title: 'Currency Unit', subtitle: 'Set currency unit' },
           // { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
           // { title: 'Changelogs', subtitle: 'Read release notes' },
           { title: 'Exit', subtitle: 'Close app' },
@@ -111,6 +114,9 @@
               // TODO Changelogs
             //  break;
             case 4:
+              setCurrency();
+              break;
+            case 5:
               window.close();
               break;
           }
@@ -211,6 +217,39 @@
         onClosed: () => {
           navInstance.attachListener();
           rangePickerModal = null;
+        }
+      }
+    });
+  }
+
+  function setCurrency() {
+    textInputDialog = new TextInputDialog({
+      target: document.body,
+      props: {
+        title: 'Currency Unit',
+        softKeyCenterText: 'SAVE',
+        value: window.localStorage.getItem("CURRENCY"),
+        placeholder: 'Please enter currency unit',
+        type: 'text',
+        onSoftkeyLeft: (evt, value) => {},
+        onSoftkeyRight: (evt, value) => {},
+        onEnter: (evt, value) => {
+          if (value) {
+            value = value.toString().trim();
+            window.localStorage.setItem("CURRENCY", value);
+            currencyUnit = value;
+          }
+          textInputDialog.$destroy();
+        },
+        onBackspace: (evt, value) => {
+          evt.stopPropagation();
+        },
+        onOpened: () => {
+          navInstance.detachListener();
+        },
+        onClosed: (value) => {
+          navInstance.attachListener();
+          textInputDialog = null;
         }
       }
     });
@@ -324,7 +363,7 @@
       return a[1] < b[1];
     });
     setTimeout(() => {
-      drawPieChart(timeline, "$", total, columns, colors);
+      drawPieChart(timeline, currencyUnit, total, columns, colors);
     }, 300);
   }
 
@@ -418,7 +457,7 @@
   {#if columns.length > 0}
     <div id="donutChart"></div>
     {#each columns as item }
-      <ListView className="{navClass}" title="{item[0]} ({byCategory[item[0]].expenses.length})" subtitle="${item[1]}" onClick={() => onClickCategory(item, byCategory[item[0]].expenses)}>
+      <ListView className="{navClass}" title="{item[0]} ({byCategory[item[0]].expenses.length})" subtitle="{currencyUnit} {item[1]}" onClick={() => onClickCategory(item, byCategory[item[0]].expenses)}>
         <span slot="leftWidget" class="kai-icon-favorite-on" style="background-color:#fff;color:{item[2]};margin-right:5px;padding:8px;border-radius:50%;"></span>
       </ListView>
     {/each}
