@@ -96,13 +96,20 @@
             case 0:
               goto('manage-category');
               break;
-            case 2:
-              exportToCSV();
             case 1:
               selectCustomRange();
               break;
+            case 2:
+              exportToCSV();
+              break;
             case 3:
               screenshot();
+              break;
+            case 4:
+              // TODO FAQ
+              break;
+            case 5:
+              // TODO Changelogs
               break;
             case 6:
               window.close();
