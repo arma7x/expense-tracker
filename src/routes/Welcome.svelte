@@ -11,7 +11,7 @@
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
   import RangePicker from './modals/RangePicker.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
-  import { toastMessage } from '../helpers.ts';
+  import { toastMessage, showLoadingBar, hideLoadingBar } from '../helpers.ts';
   import { saveAs } from 'file-saver';
   import html2canvas from 'html2canvas';
 
@@ -179,7 +179,9 @@
       }
     });
     const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv' });
+    showLoadingBar(navInstance);
     saveAs(csvBlob, `${begin.toGMTString()} - ${end.toGMTString()}.csv`);
+    hideLoadingBar();
   }
 
   function selectCustomRange() {
@@ -220,12 +222,17 @@
     }
     container.style.height = totalHeight + 'px';
     try {
+      showLoadingBar(navInstance);
       const canvas = await html2canvas(container);
       canvas.toBlob((blob) => {
-        saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
-        container.style.height = '';
+        if (blob != null) {
+          saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
+          container.style.height = '';
+        }
+        hideLoadingBar();
       });
     } catch (err) {
+      hideLoadingBar();
       console.error(err);
     }
   }
