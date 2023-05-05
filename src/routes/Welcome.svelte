@@ -104,12 +104,12 @@
             case 3:
               screenshot();
               break;
-            case 4:
+            //case 4:
               // TODO FAQ
-              break;
-            case 5:
+            //  break;
+            //case 5:
               // TODO Changelogs
-              break;
+            //  break;
             case 4:
               window.close();
               break;
