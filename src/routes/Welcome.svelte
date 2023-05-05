@@ -50,18 +50,25 @@
       openExpenseEditorModal(null);
     },
     arrowUpListener: function(evt) {
-      if (focusChart)
+      if (focusChart) {
         this.verticalNavIndex += 1;
-      focusChart = false;
+        const { softwareKey } = getAppProp();
+        softwareKey.setCenterText('EXPENSES');
+        focusChart = false;
+      }
       this.navigateListNav(-1);
     },
     arrowDownListener: function(evt) {
-      if (focusChart)
+      if (focusChart) {
         this.verticalNavIndex -= 1;
-      focusChart = false;
+        const { softwareKey } = getAppProp();
+        softwareKey.setCenterText('EXPENSES');
+        focusChart = false;
+      }
       this.navigateListNav(1);
     },
     enterListener: function(evt) {
+      if (focusChart) return;
       const navClasses = document.getElementsByClassName(navClass);
       if (navClasses[this.verticalNavIndex] != null) {
         navClasses[this.verticalNavIndex].click();
@@ -334,10 +341,12 @@
   });
 
   function eventHandler(evt) {
-    if (evt.key == "Call") {
+    if (evt.key == "Call" && focusChart == false) {
       const target = document.getElementById('welcome-screen')
       target.scroll({ top: 0, behavior: 'smooth' });
       focusChart = true;
+      const { softwareKey } = getAppProp();
+      softwareKey.setCenterText('');
     }
   }
 
