@@ -1,6 +1,6 @@
 import { Toast, Toaster } from './components/index';
 
-export default function toastMessage(text) {
+export function toastMessage(text) {
   const t = new Toast({
     target: document.body,
     props: {

@@ -7,7 +7,7 @@
   import { IDB_EVENT, CategoryType } from '../idb-worker/types';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore.ts';
   import { ListView, Dialog, Toast, Toaster } from '../components/index.ts';
-  import toastMessage from '../toaster.ts';
+  import { toastMessage } from '../helpers.ts';
 
   export let location: any;
   export let navigate: any;

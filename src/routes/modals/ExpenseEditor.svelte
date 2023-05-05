@@ -5,7 +5,7 @@
   import { SoftwareKey, TextInputField, TextAreaField, DatePicker, TimePicker, ListView, OptionMenu } from '../../components/index.ts';
   import EventEmitter from 'events';
   import { IDB_EVENT, TypeCategory, TypeExpense } from '../../idb-worker/types';
-  import toastMessage from '../../toaster.ts';
+  import { toastMessage } from '../../helpers.ts';
 
   export let title: string = 'Modal';
   export let id: number | null;

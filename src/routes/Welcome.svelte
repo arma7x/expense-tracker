@@ -11,7 +11,7 @@
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
   import RangePicker from './modals/RangePicker.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
-  import toastMessage from '../toaster.ts';
+  import { toastMessage } from '../helpers.ts';
   import { saveAs } from 'file-saver';
   import html2canvas from 'html2canvas';
 
