@@ -50,22 +50,12 @@
       openExpenseEditorModal(null);
     },
     arrowUpListener: function(evt) {
-      if (focusChart) {
-        this.verticalNavIndex += 1;
-        const { softwareKey } = getAppProp();
-        softwareKey.setCenterText('EXPENSES');
-        focusChart = false;
-      }
+      if (focusChart) return;
       this.navigateListNav(-1);
     },
     arrowDownListener: function(evt) {
-      if (focusChart) {
-        this.verticalNavIndex -= 1;
-        const { softwareKey } = getAppProp();
-        softwareKey.setCenterText('EXPENSES');
-        focusChart = false;
-      }
-      this.navigateListNav(1);
+      if (focusChart) return;
+        this.navigateListNav(1);
     },
     enterListener: function(evt) {
       if (focusChart) return;
@@ -341,12 +331,25 @@
   });
 
   function eventHandler(evt) {
-    if (evt.key == "Call" && focusChart == false) {
-      const target = document.getElementById('welcome-screen')
-      target.scroll({ top: 0, behavior: 'smooth' });
-      focusChart = true;
+    if (evt.key == "Call") {
+      const target = document.getElementById('welcome-screen');
       const { softwareKey } = getAppProp();
-      softwareKey.setCenterText('');
+      if (focusChart == false) {
+        focusChart = true;
+        softwareKey.setCenterText('');
+        setTimeout(() => {
+          target.scroll({ top: 0, behavior: 'smooth' });
+        }, 200);
+      } else if (focusChart) {
+        focusChart = false;
+        const chartHeight = document.getElementById('donutChart').offsetHeight;
+        softwareKey.setCenterText('EXPENSES');
+        target.scroll({ top: chartHeight, behavior: 'smooth' });
+        setTimeout(() => {
+          navInstance.verticalNavIndex -= 1;
+          navInstance.navigateListNav(1);
+        }, 200);
+      }
     }
   }
 
@@ -395,5 +398,6 @@
     width: 232px;
     height: 232px;
     overflow-y: hidden;
+    margin-bottom: 5px;
   }
 </style>
