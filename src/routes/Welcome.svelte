@@ -323,7 +323,7 @@
   }
 
   function onClickCategory(name: string, expenses: Array<TypeExpense>) {
-    console.log(name, expenses);
+    goto('expense-list',  {state: { category: name, expenseList: expenses }});
   }
 
   function onInitialize(data) {

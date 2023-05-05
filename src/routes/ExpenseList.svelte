@@ -2,27 +2,23 @@
   import { navigate as goto } from "svelte-navigator";
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
+  import EventEmitter from 'events';
 
   export let location: any;
   export let navigate: any;
   export let getAppProp: Function;
+  export let idbWorker: Worker;
+  export let idbWorkerEventEmitter: EventEmitter;
 
   let name: string = 'Room';
 
   let navOptions = {
     verticalNavClass: 'vertClass',
     horizontalNavClass: 'horzClass',
-    softkeyLeftListener: function(evt) {
-      console.log('softkeyLeftListener', name);
-    },
-    softkeyRightListener: function(evt) {
-      console.log('softkeyRightListener', name);
-    },
-    enterListener: function(evt) {
-      console.log('enterListener', name);
-    },
+    softkeyLeftListener: function(evt) {},
+    softkeyRightListener: function(evt) {},
+    enterListener: function(evt) {},
     backspaceListener: function(evt) {
-      console.log('backspaceListener', name);
       evt.preventDefault();
       goto(-1);
     }
@@ -31,22 +27,21 @@
   let navInstance = createKaiNavigator(navOptions);
 
   onMount(() => {
-    console.log('onMount', name);
+    console.log(location);
+    name = location.state.category;
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
-    softwareKey.setText({ left: `${name} L`, center: `${name} C`, right: `${name} R` });
+    softwareKey.setText({ left: `L`, center: `C`, right: `R` });
     navInstance.attachListener();
   });
 
   onDestroy(() => {
-    console.log('onDestroy', name);
     navInstance.detachListener();
   });
 
 </script>
 
-<main id="room-screen" data-pad-top="28" data-pad-bottom="30">
-  <h1>Hello {name}!</h1>
+<main id="expense-list-screen" data-pad-top="28" data-pad-bottom="30">
   <div class="vertical">
     <div class="vertClass">Vertical 1</div>
     <div class="vertClass">Vertical 2</div>
@@ -58,26 +53,26 @@
 </main>
 
 <style>
-  #room-screen {
+  #expense-list-screen {
     overflow: scroll;
     width: 100%;
   }
-  #room-screen > .vertical {
+  #expense-list-screen > .vertical {
     display:flex;
     flex-direction:column;
   }
-  #room-screen > .horizontal {
+  #expense-list-screen > .horizontal {
     width:100%;
     display:flex;
     flex-direction:row;
   }
-  :global(#room-screen > .vertical > .vertClass)
-  :global(#room-screen > .vertical > .horizontal) {
+  :global(#expense-list-screen > .vertical > .vertClass)
+  :global(#expense-list-screen > .vertical > .horizontal) {
     background-color: #ffffff;
     color: #000000;
   }
-  :global(#room-screen > .vertical > .vertClass.focus),
-  :global(#room-screen > .horizontal > .horzClass.focus) {
+  :global(#expense-list-screen > .vertical > .vertClass.focus),
+  :global(#expense-list-screen > .horizontal > .horzClass.focus) {
     background-color: red!important;
     color: #fff!important;
   }
