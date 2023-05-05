@@ -191,8 +191,8 @@
       target: document.body,
       props: {
         title: 'Custom Range',
-        begin: new Date(),
-        end: new Date(),
+        begin: begin,
+        end: end,
         onSuccess: (result: any) => {
           if (result != null) {
             if (result.end > result.begin || result.end.toLocaleDateString() == result.begin.toLocaleDateString()) {
