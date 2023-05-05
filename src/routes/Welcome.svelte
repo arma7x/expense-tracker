@@ -44,9 +44,11 @@
   let navOptions = {
     verticalNavClass: navClass,
     softkeyLeftListener: function(evt) {
+      if (focusChart) return;
       openLSKMenu();
     },
     softkeyRightListener: function(evt) {
+      if (focusChart) return;
       openExpenseEditorModal(null);
     },
     arrowUpListener: function(evt) {
@@ -362,7 +364,7 @@
     const target = document.getElementById('welcome-screen');
     const { softwareKey } = getAppProp();
     focusChart = true;
-    softwareKey.setCenterText('CALL');
+    softwareKey.setText({ left: 'Please', center: 'press', right: 'call' });
     setTimeout(() => {
       target.scroll({ top: 0, behavior: 'smooth' });
     }, 200);
@@ -373,7 +375,7 @@
     const { softwareKey } = getAppProp();
     focusChart = false;
     const chartHeight = document.getElementById('donutChart').offsetHeight;
-    softwareKey.setCenterText('EXPENSES');
+    softwareKey.setText({ left: 'Menu', center: 'EXPENSES', right: 'Add' });
     target.scroll({ top: chartHeight, behavior: 'smooth' });
     setTimeout(() => {
       navInstance.verticalNavIndex -= 1;
