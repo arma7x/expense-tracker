@@ -228,11 +228,14 @@
       props: {
         title: 'Currency Unit',
         softKeyCenterText: 'SAVE',
+        softKeyRightText: 'Cancel',
         value: window.localStorage.getItem("CURRENCY"),
         placeholder: 'Please enter currency unit',
         type: 'text',
         onSoftkeyLeft: (evt, value) => {},
-        onSoftkeyRight: (evt, value) => {},
+        onSoftkeyRight: (evt, value) => {
+          textInputDialog.$destroy();
+        },
         onEnter: (evt, value) => {
           if (value) {
             value = value.toString().trim();
