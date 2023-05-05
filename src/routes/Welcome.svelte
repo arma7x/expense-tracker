@@ -80,7 +80,7 @@
         focusIndex: 0,
         options: [
           { title: 'Categories', subtitle: 'Manage expense categories' },
-          { title: 'Generate Custom Statistic', subtitle: 'Select custom date range' },
+          { title: 'Setting A Date Range', subtitle: 'Select the date range to generate the report' },
           { title: 'Export Report To CSV', subtitle: 'Export expense list to CSV' },
           { title: 'Screenshot Report', subtitle: 'Save chart and expense category as PNG' },
           { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
