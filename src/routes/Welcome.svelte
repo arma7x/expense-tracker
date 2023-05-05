@@ -364,7 +364,7 @@
     const target = document.getElementById('welcome-screen');
     const { softwareKey } = getAppProp();
     focusChart = true;
-    softwareKey.setText({ left: 'Please', center: 'press', right: 'call' });
+    softwareKey.setText({ left: 'PLEASE', center: 'PRESS', right: 'CALL' });
     setTimeout(() => {
       target.scroll({ top: 0, behavior: 'smooth' });
     }, 200);
