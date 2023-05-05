@@ -76,12 +76,12 @@
         title: 'Menu',
         focusIndex: 0,
         options: [
-          { title: 'Categories', subtitle: 'Manage expense categories' },
-          { title: 'Setting A Date Range', subtitle: 'Select the date range to generate the report' },
+          { title: 'Manage Categories', subtitle: 'Manage expense categories' },
+          { title: 'Custom Date Range', subtitle: 'Select the date range to generate the report' },
           { title: 'Export Expense To CSV', subtitle: 'Export report and expense list to CSV' },
           { title: 'Screenshot Report', subtitle: 'Save chart and expense category as PNG' },
-          { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
-          { title: 'Changelogs', subtitle: 'Read release notes' },
+          // { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
+          // { title: 'Changelogs', subtitle: 'Read release notes' },
           { title: 'Exit', subtitle: 'Close app' },
         ],
         softKeyCenterText: 'select',
@@ -108,7 +108,7 @@
             case 5:
               // TODO Changelogs
               break;
-            case 6:
+            case 4:
               window.close();
               break;
           }
@@ -214,27 +214,31 @@
     });
   }
 
-  async function screenshot() {
-    const container = document.querySelector("#welcome-screen");
-    let totalHeight = 0;
-    for (let i=0;i<container.children.length;i++) {
-      totalHeight += container.children[i].offsetHeight;
-    }
-    container.style.height = totalHeight + 'px';
-    try {
-      showLoadingBar(navInstance);
-      const canvas = await html2canvas(container);
-      canvas.toBlob((blob) => {
-        if (blob != null) {
-          saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
-          container.style.height = '';
-        }
+  function screenshot() {
+    focus();
+    setTimeout(async () => {
+      const container = document.querySelector("#welcome-screen");
+      let totalHeight = 0;
+      for (let i=0;i<container.children.length;i++) {
+        totalHeight += container.children[i].offsetHeight;
+      }
+      container.style.height = totalHeight + 'px';
+      try {
+        showLoadingBar(navInstance);
+        const canvas = await html2canvas(container);
+        canvas.toBlob((blob) => {
+          if (blob != null) {
+            saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
+            container.style.height = '';
+          }
+          hideLoadingBar();
+          unfocus();
+        });
+      } catch (err) {
         hideLoadingBar();
-      });
-    } catch (err) {
-      hideLoadingBar();
-      console.error(err);
-    }
+        console.error(err);
+      }
+    }, 1000);
   }
 
   function setBegin(date: Date): Date {
@@ -354,25 +358,35 @@
       groupExpenseByCategory({ begin, end });
   });
 
+  function focus() {
+    const target = document.getElementById('welcome-screen');
+    const { softwareKey } = getAppProp();
+    focusChart = true;
+    softwareKey.setCenterText('CALL');
+    setTimeout(() => {
+      target.scroll({ top: 0, behavior: 'smooth' });
+    }, 200);
+  }
+
+  function unfocus() {
+    const target = document.getElementById('welcome-screen');
+    const { softwareKey } = getAppProp();
+    focusChart = false;
+    const chartHeight = document.getElementById('donutChart').offsetHeight;
+    softwareKey.setCenterText('EXPENSES');
+    target.scroll({ top: chartHeight, behavior: 'smooth' });
+    setTimeout(() => {
+      navInstance.verticalNavIndex -= 1;
+      navInstance.navigateListNav(1);
+    }, 200);
+  }
+
   function eventHandler(evt) {
     if (evt.key == "Call") {
-      const target = document.getElementById('welcome-screen');
-      const { softwareKey } = getAppProp();
       if (focusChart == false) {
-        focusChart = true;
-        softwareKey.setCenterText('');
-        setTimeout(() => {
-          target.scroll({ top: 0, behavior: 'smooth' });
-        }, 200);
+        focus();
       } else if (focusChart) {
-        focusChart = false;
-        const chartHeight = document.getElementById('donutChart').offsetHeight;
-        softwareKey.setCenterText('EXPENSES');
-        target.scroll({ top: chartHeight, behavior: 'smooth' });
-        setTimeout(() => {
-          navInstance.verticalNavIndex -= 1;
-          navInstance.navigateListNav(1);
-        }, 200);
+        unfocus();
       }
     }
   }
