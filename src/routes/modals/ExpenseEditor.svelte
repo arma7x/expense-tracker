@@ -218,7 +218,12 @@
   function onInput(evt) {
     switch (navInstance.verticalNavIndex) {
       case 0:
-        amount = parseFloat(evt.target.value);
+        try {
+          JSON.parse(evt.target.value);
+          amount = parseFloat(evt.target.value);
+        } catch (err) {
+          amount = '';
+        }
         break;
       case 4:
         description = evt.target.value;
