@@ -1,9 +1,9 @@
 import Welcome from "./Welcome.svelte";
-import Demo from "./Demo.svelte";
-import Room from "./Room.svelte";
+import ExpenseList from "./ExpenseList.svelte";
+import Category from "./Category.svelte";
 
 export {
   Welcome,
-  Demo,
-  Room
+  Category,
+  ExpenseList,
 }

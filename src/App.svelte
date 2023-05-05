@@ -1,11 +1,10 @@
 <script lang="ts">
   import { Router, Route, Link } from 'svelte-navigator';
   import { AppBar, SoftwareKey } from './components';
-  import { Welcome, Demo, Room } from './routes';
+  import { Welcome, Category, ExpenseList } from './routes';
   import { onMount, onDestroy } from 'svelte';
   import { Localization } from './utils/localization';
 
-  import Category from "./routes/Category.svelte";
   import { idbWorker, idbWorkerEventEmitter } from './idb-worker/worker-client';
   import { toastMessage } from './helpers.ts';
   import './idb-worker/categoriesStore';
@@ -43,8 +42,8 @@
     <Route primary={false} path="manage-category" let:location let:navigate>
       <svelte:component this="{Category}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
-    <Route primary={false} path="room" let:location let:navigate>
-      <svelte:component this="{Room}" {location} {navigate} {getAppProp}/>
+    <Route primary={false} path="expense-list" let:location let:navigate>
+      <svelte:component this="{ExpenseList}" {location} {navigate} {getAppProp} {idbWorker} {idbWorkerEventEmitter}/>
     </Route>
   </main>
   <SoftwareKey bind:this={softwareKey} />
