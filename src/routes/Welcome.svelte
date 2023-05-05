@@ -78,7 +78,7 @@
         options: [
           { title: 'Categories', subtitle: 'Manage expense categories' },
           { title: 'Setting A Date Range', subtitle: 'Select the date range to generate the report' },
-          { title: 'Export Report To CSV', subtitle: 'Export expense list to CSV' },
+          { title: 'Export Expense To CSV', subtitle: 'Export report and expense list to CSV' },
           { title: 'Screenshot Report', subtitle: 'Save chart and expense category as PNG' },
           { title: 'FAQ', subtitle: 'Frequently Asked Questions' },
           { title: 'Changelogs', subtitle: 'Read release notes' },
@@ -161,9 +161,25 @@
     });
   }
 
-  // TODO
   function exportToCSV() {
-
+    let csv = ['ID,Category ID,Category Name,Amount,Datetime,Description,,,,Category ID,Name,Color'];
+    let tempCats = {0: {id:0, name: 'General', color: "#ff3e00"}};
+    tempCats = {...categoriesList, ...tempCats};
+    const cat_keys = Object.keys(tempCats);
+    expenseList.forEach((expense, index) => {
+      if (index < cat_keys.length) {
+        const cat = tempCats[cat_keys[index]];
+        csv.push(`${expense.id},${expense.category},${tempCats[expense.category] ? tempCats[expense.category].name : 'General'},${expense.amount},${expense.datetime.toISOString()},${expense.description},,,,${cat.id},${cat.name},"${cat.color}","=SUMIF(C1:C16384, K${index+2}, D1:D16384)"`);
+      } else {
+        if (index === cat_keys.length) {
+          csv.push(`${expense.id},${expense.category},${tempCats[expense.category] ? tempCats[expense.category].name : 'General'},${expense.amount},${expense.datetime.toISOString()},${expense.description},,,,,,Total,"=SUM(M2:M${cat_keys.length + 1})"`);
+        } else {
+          csv.push(`${expense.id},${expense.category},${tempCats[expense.category] ? tempCats[expense.category].name : 'General'},${expense.amount},${expense.datetime.toISOString()},${expense.description}`);
+        }
+      }
+    });
+    const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv' });
+    saveAs(csvBlob, `${begin.toGMTString()} - ${end.toGMTString()}.csv`);
   }
 
   function selectCustomRange() {
@@ -318,6 +334,7 @@
   function onWeeklyExpense(data) {
     if (data.result) {
       expenseList = data.result.list;
+      expenseList.sort((a, b) => a.id > b.id);
       groupExpenseByCategory({ begin: data.result.begin, end: data.result.end });
     } else if (data.error) {
       console.error(data.error);
