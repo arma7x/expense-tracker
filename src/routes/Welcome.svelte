@@ -302,18 +302,21 @@
     return { begin, end };
   }
 
-  function drawPieChart(timeline, symbol: string = "$", total: number = 0, colums, colors) {
+  function drawDonutChart(timeline, symbol: string = "$", total: number = 0, colums, colors) {
     billboardChart = bb.generate({
       data: {
         type: donut(),
         columns: colums,
         colors: colors,
+        labels: {
+          backgroundColors: "black",
+          colors: "white"
+        }
       },
       donut: {
         title: timeline.begin.toLocaleDateString() + "\n" + timeline.end.toLocaleDateString() + "\nTotal: " + symbol + total.toString(),
         label: {
           show: true,
-          position: 'inset',
           format: function(value, ratio, id) {
             return symbol + value;
           },
@@ -363,7 +366,7 @@
       return a[1] < b[1];
     });
     setTimeout(() => {
-      drawPieChart(timeline, currencyUnit, total, columns, colors);
+      drawDonutChart(timeline, currencyUnit, total, columns, colors);
     }, 300);
   }
 
