@@ -3,7 +3,7 @@
   import { createKaiNavigator } from '../utils/navigation';
   import { onMount, onDestroy } from 'svelte';
   import { ListView, TextInputDialog } from '../components/index.ts';
-  import { get } from 'svelte/store';
+  import { get, writable } from 'svelte/store';
   import EventEmitter from 'events';
   import { OptionMenu } from '../components/index.ts';
 
@@ -11,10 +11,10 @@
   import ExpenseEditor from './modals/ExpenseEditor.svelte';
   import RangePicker from './modals/RangePicker.svelte';
   import CATEGORIES_STORE from '../idb-worker/categoriesStore';
+  import persistent from './state.ts';
   import { toastMessage, showLoadingBar, hideLoadingBar } from '../helpers.ts';
   import { saveAs } from 'file-saver';
   import html2canvas from 'html2canvas';
-
 
   import bb, { donut } from "billboard.js";
   import "billboard.js/dist/billboard.min.css";
@@ -34,8 +34,6 @@
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
   let focusChart: bool = false;
-  let begin: Date;
-  let end: Date;
   let currencyUnit: string = window.localStorage.getItem("CURRENCY");
 
   let expenseEditorModal: ExpenseEditor;
@@ -152,7 +150,8 @@
         idbWorker: idbWorker,
         idbWorkerEventEmitter: idbWorkerEventEmitter,
         onSuccess: (result: any) => {
-          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
+          let temp = get(persistent);
+          idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin: temp.begin, end: temp.end } });
           expenseEditorModal.$destroy();
         },
         onError: (err: any) => {
@@ -193,17 +192,22 @@
   }
 
   function selectCustomRange() {
+    let temp = get(persistent);
     rangePickerModal = new RangePicker({
       target: document.body,
       props: {
         title: 'Custom Range',
-        begin: begin,
-        end: end,
+        begin: temp.begin,
+        end: temp.end,
         onSuccess: (result: any) => {
           if (result != null) {
             if (result.end > result.begin || result.end.toLocaleDateString() == result.begin.toLocaleDateString()) {
-              begin = setBegin(result.begin);
-              end = setEnd(result.end);
+              const begin = setBegin(result.begin);
+              const end = setEnd(result.end);
+              persistent.update((state) => {
+                state = { begin, end };
+                return state;
+              });
               idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
             } else {
               toastMessage("Invalid range");
@@ -238,8 +242,10 @@
         },
         onEnter: (evt, value) => {
           if (value) {
-            if (currencyUnit != value)
+            if (currencyUnit != value) {
+              let temp = get(persistent);
               idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
+            }
             value = value.toString().trim();
             window.localStorage.setItem("CURRENCY", value);
             currencyUnit = value;
@@ -398,10 +404,15 @@
   function onInitialize(data) {
     if (data.result) {
       idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_GET_ALL, params: {} });
-      const t = getMonthRange();
-      begin = t.begin;
-      end  = t.end;
-      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
+      let temp = get(persistent);
+      if (temp.begin == null || temp.end == null) {
+        temp = getMonthRange();
+        persistent.update((state) => {
+          state = { begin: temp.begin, end: temp.end };
+          return state;
+        });
+      }
+      idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin: temp.begin, end: temp.end } });
     } else if (data.error) {
       console.error(data.error);
     }
@@ -419,8 +430,9 @@
 
   const unsubscribeCategoryStore = CATEGORIES_STORE.subscribe(categories => {
     categoriesList = categories;
-    if (begin != null && end != null)
-      groupExpenseByCategory({ begin, end });
+    let temp = get(persistent);
+    if (temp.begin == null || temp.end == null)
+      groupExpenseByCategory({ begin: temp.begin, end: temp.end });
   });
 
   function focus() {
