@@ -238,6 +238,8 @@
         },
         onEnter: (evt, value) => {
           if (value) {
+            if (currencyUnit != value)
+              idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
             value = value.toString().trim();
             window.localStorage.setItem("CURRENCY", value);
             currencyUnit = value;
@@ -306,6 +308,17 @@
   }
 
   function drawDonutChart(timeline, symbol: string = "$", total: number = 0, colums, colors) {
+    if (billboardChart) {
+      billboardChart.load({ columns: colums, colors: colors });
+      try {
+        const ttA = [timeline.begin.toLocaleDateString(), timeline.end.toLocaleDateString(), "Total: " + symbol + total.toString()];
+        const tt = document.getElementsByClassName('bb-chart-arcs-title')[0];
+        for (let i=0;i<tt.children.length;i++) {
+          tt.children[i].textContent = ttA[i];
+        }
+      } catch (err) {}
+      return;
+    }
     billboardChart = bb.generate({
       data: {
         type: donut(),
@@ -337,6 +350,11 @@
   }
 
   function groupExpenseByCategory(timeline) {
+    if (billboardChart != null && columns.length > 0) {
+      columns.forEach((i) => {
+        billboardChart.unload({ ids: i[0] });
+      });
+    }
     columns = [];
     byCategory = {};
     if (expenseList.length === 0)
