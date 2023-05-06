@@ -438,6 +438,32 @@
     }
   }
 
+  function displayKaiAds() {
+    let display = true;
+    if (window['kaiadstimer'] == null) {
+      window['kaiadstimer'] = new Date();
+    } else {
+      var now = new Date();
+      if ((now - window['kaiadstimer']) < 300000) {
+        display = false;
+      } else {
+        window['kaiadstimer'] = now;
+      }
+    }
+    if (!display) return;
+    getKaiAd({
+      publisher: 'ac3140f7-08d6-46d9-aa6f-d861720fba66',
+      app: 'expense-tracker',
+      slot: 'kaios',
+      onerror: err => console.error(err),
+      onready: ad => {
+        ad.call('display')
+        ad.on('close', () => {});
+        ad.on('display', () => {});
+      }
+    })
+  }
+
   onMount(() => {
     const { appBar, softwareKey } = getAppProp();
     appBar.setTitleText(name);
@@ -447,6 +473,7 @@
     idbWorkerEventEmitter.addListener(IDB_EVENT.EXPENSE_GET_RANGE, onWeeklyExpense);
     idbWorker.postMessage({ type: IDB_EVENT.INITIALIZE, params: { dbName: "expense-tracker" } });
     document.addEventListener('keydown', eventHandler);
+    displayKaiAds();
   });
 
   onDestroy(() => {
