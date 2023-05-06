@@ -244,12 +244,12 @@
         onEnter: (evt, value) => {
           if (value) {
             if (currencyUnit != value) {
+              currencyUnit = value;
               let temp = get(persistent);
               idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin: temp.begin, end: temp.end } });
             }
             value = value.toString().trim();
             window.localStorage.setItem("CURRENCY", value);
-            currencyUnit = value;
           }
           textInputDialog.$destroy();
         },
@@ -342,7 +342,8 @@
         label: {
           show: true,
           format: function(value, ratio, id) {
-            return symbol + value;
+            return window.localStorage.getItem("CURRENCY") + value; // temp fix
+            // return symbol + value;
           },
         },
       },
