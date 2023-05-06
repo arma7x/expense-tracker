@@ -245,7 +245,7 @@
           if (value) {
             if (currencyUnit != value) {
               let temp = get(persistent);
-              idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin, end } });
+              idbWorker.postMessage({ type: IDB_EVENT.EXPENSE_GET_RANGE, params: { begin: temp.begin, end: temp.end } });
             }
             value = value.toString().trim();
             window.localStorage.setItem("CURRENCY", value);
