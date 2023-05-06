@@ -169,6 +169,7 @@
   }
 
   function exportToCSV() {
+    if (columns.length == 0) return;
     let csv = ['ID,Category ID,Category Name,Amount,Datetime,Description,,,,Category ID,Name,Color'];
     let tempCats = {0: {id:0, name: 'General', color: "#2d8e2d"}};
     tempCats = {...categoriesList, ...tempCats};
@@ -267,6 +268,7 @@
   }
 
   function screenshot() {
+    if (columns.length == 0) return;
     focus();
     setTimeout(async () => {
       const container = document.querySelector("#welcome-screen");
@@ -468,7 +470,7 @@
   }
 
   function eventHandler(evt) {
-    if (evt.key == "Call") {
+    if (evt.key == "Call" && columns.length > 0) {
       if (focusChart == false) {
         focus();
       } else if (focusChart) {
