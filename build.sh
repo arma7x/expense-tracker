@@ -15,5 +15,5 @@ exc_manifest=(manifest.webmanifest manifest.webapp)
 for (( i=0;i<${#kaios[@]};i++ ))
 do
   file_name="${ZIP_BUILD}_${kaios[$i]}_${REV}.zip"
-  zip -r "./${file_name}" * -x "${exc_manifest[$i]}" && mv "./${file_name}" ../
+  zip -r "./${file_name}" * -x "${exc_manifest[$i]}" screenshot && mv "./${file_name}" ../
 done
