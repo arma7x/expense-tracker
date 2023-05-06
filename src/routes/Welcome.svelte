@@ -361,10 +361,19 @@
         billboardChart.unload({ ids: i[0] });
       });
     }
+    if (expenseList.length === 0) {
+      if (billboardChart) {
+        billboardChart.destroy();
+        billboardChart = null;
+      }
+      const { softwareKey } = getAppProp();
+      softwareKey.setCenterText('');
+      columns = [];
+      byCategory = {};
+      return;
+    }
     columns = [];
     byCategory = {};
-    if (expenseList.length === 0)
-      return;
     expenseList.forEach((_expense) => {
       const category: TypeCategory = categoriesList[_expense.category];
       if (category) {
