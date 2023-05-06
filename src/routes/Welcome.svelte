@@ -170,7 +170,7 @@
 
   function exportToCSV() {
     let csv = ['ID,Category ID,Category Name,Amount,Datetime,Description,,,,Category ID,Name,Color'];
-    let tempCats = {0: {id:0, name: 'General', color: "#ff3e00"}};
+    let tempCats = {0: {id:0, name: 'General', color: "#2d8e2d"}};
     tempCats = {...categoriesList, ...tempCats};
     const cat_keys = Object.keys(tempCats);
     expenseList.forEach((expense, index) => {
@@ -385,7 +385,7 @@
       } else {
         const expense = { ..._expense };
         if (byCategory['General'] == null)
-          byCategory['General'] = { label: 'General', color: '#ff3e00', value: 0, expenses: [] };
+          byCategory['General'] = { label: 'General', color: '#2d8e2d', value: 0, expenses: [] };
         byCategory['General'].value += expense.amount;
         byCategory['General'].expenses.push(expense);
       }

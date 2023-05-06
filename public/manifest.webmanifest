@@ -2,9 +2,9 @@
   "name": "Expense Tracker",
   "description": "Expense Tracker is personal finance manager, built to help you save money, plan for the future, and see all your finances in one place",
   "start_url": "/index.html",
-  "theme": "#ff3e00",
-  "theme_color": "#ff3e00",
-  "background_color": "#ff3e00",
+  "theme": "#2d8e2d",
+  "theme_color": "#2d8e2d",
+  "background_color": "#2d8e2d",
   "display": "fullscreen",
   "orientation": "default",
   "categories": [
