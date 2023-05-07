@@ -189,7 +189,8 @@
     });
     const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv' });
     showLoadingBar(navInstance);
-    saveAs(csvBlob, `${begin.toGMTString()} - ${end.toGMTString()}.csv`);
+    let temp = get(persistent);
+    saveAs(csvBlob, `${temp.begin.toGMTString()} - ${temp.end.toGMTString()}.csv`);
     hideLoadingBar();
   }
 
@@ -283,7 +284,8 @@
         const canvas = await html2canvas(container);
         canvas.toBlob((blob) => {
           if (blob != null) {
-            saveAs(blob, `${begin.toGMTString()} - ${end.toGMTString()}.png`);
+            let temp = get(persistent);
+            saveAs(blob, `${temp.begin.toGMTString()} - ${temp.end.toGMTString()}.png`);
             container.style.height = '';
           }
           hideLoadingBar();
