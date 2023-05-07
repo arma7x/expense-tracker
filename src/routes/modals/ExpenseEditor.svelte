@@ -72,7 +72,8 @@
   let navInstance = createKaiNavigator(navOptions);
 
   function addOrUpdateExpense() {
-    const expenseObj: TypeExpense = { id, amount: amount == '' ? 0 : parseFloat(amount), datetime, category, description, attachment };
+    const d = description.replaceAll('"', '');
+    const expenseObj: TypeExpense = { id, amount: amount == '' ? 0 : parseFloat(amount), datetime, category, description: d, attachment };
     if (expenseObj.amount <= 0) {
       toastMessage('Amount must greater than 0');return;
     }

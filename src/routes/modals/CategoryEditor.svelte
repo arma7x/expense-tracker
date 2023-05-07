@@ -48,10 +48,11 @@
     if (color == '') {
       toastMessage('Color required');return;
     }
+    const n = name.replaceAll('"', '');
     if (id == null) {
-      idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_ADD, params: { name, color } });
+      idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_ADD, params: { name: n, color } });
     } else {
-      idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_UPDATE, params: { id, name, color } });
+      idbWorker.postMessage({ type: IDB_EVENT.CATEGORY_UPDATE, params: { id, name: n, color } });
     }
   }
 
