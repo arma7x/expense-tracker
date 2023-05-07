@@ -34,6 +34,7 @@
   let byCategory: {[key:number]: any} = {};
   let billboardChart: typeof bb.generate;
   let focusChart: bool = false;
+  let screenshot: bool = false;
   let currencyUnit: string = window.localStorage.getItem("CURRENCY");
 
   let expenseEditorModal: ExpenseEditor;
@@ -44,23 +45,23 @@
   let navOptions = {
     verticalNavClass: navClass,
     softkeyLeftListener: function(evt) {
-      if (focusChart) return;
+      if (focusChart || screenshot) return;
       openLSKMenu();
     },
     softkeyRightListener: function(evt) {
-      if (focusChart) return;
+      if (focusChart || screenshot) return;
       openExpenseEditorModal(null);
     },
     arrowUpListener: function(evt) {
-      if (focusChart) return;
+      if (focusChart || screenshot) return;
       this.navigateListNav(-1);
     },
     arrowDownListener: function(evt) {
-      if (focusChart) return;
+      if (focusChart || screenshot) return;
         this.navigateListNav(1);
     },
     enterListener: function(evt) {
-      if (focusChart) return;
+      if (focusChart || screenshot) return;
       const navClasses = document.getElementsByClassName(navClass);
       if (navClasses[this.verticalNavIndex] != null) {
         navClasses[this.verticalNavIndex].click();
@@ -103,7 +104,7 @@
               exportToCSV();
               break;
             case 3:
-              screenshot();
+              takeScreenshot();
               break;
             //case 4:
               // TODO FAQ
@@ -267,9 +268,9 @@
     });
   }
 
-  function screenshot() {
+  function takeScreenshot() {
     if (columns.length == 0) return;
-    focus();
+    focus(2);
     setTimeout(async () => {
       const container = document.querySelector("#welcome-screen");
       let totalHeight = 0;
@@ -286,7 +287,7 @@
             container.style.height = '';
           }
           hideLoadingBar();
-          unfocus();
+          unfocus(2);
         });
       } catch (err) {
         hideLoadingBar();
@@ -447,22 +448,31 @@
       groupExpenseByCategory({ begin: temp.begin, end: temp.end });
   });
 
-  function focus() {
+  function focus(type: number = 1) {
     const target = document.getElementById('welcome-screen');
     const { softwareKey } = getAppProp();
-    focusChart = true;
-    softwareKey.setText({ left: 'PLEASE', center: 'PRESS', right: 'CALL' });
+    if (type == 1) {
+      focusChart = true;
+      softwareKey.setText({ left: 'PLEASE', center: 'PRESS', right: 'CALL' });
+    } else if (type == 2) {
+      screenshot = true;
+      softwareKey.setText({ left: 'Please', center: '', right: 'Wait' });
+    }
     setTimeout(() => {
       target.scroll({ top: 0, behavior: 'smooth' });
     }, 200);
   }
 
-  function unfocus() {
+  // 1 focus, 2 screenshot
+  function unfocus(type: number = 1) {
     const target = document.getElementById('welcome-screen');
     const { softwareKey } = getAppProp();
-    focusChart = false;
-    const chartHeight = document.getElementById('donutChart').offsetHeight;
+    if (type == 1)
+      focusChart = false;
+    else if (type == 2)
+      screenshot = false;
     softwareKey.setText({ left: 'Menu', center: 'EXPENSES', right: 'Add' });
+    const chartHeight = document.getElementById('donutChart').offsetHeight;
     target.scroll({ top: chartHeight, behavior: 'smooth' });
     setTimeout(() => {
       navInstance.verticalNavIndex -= 1;
@@ -471,7 +481,7 @@
   }
 
   function eventHandler(evt) {
-    if (evt.key == "Call" && columns.length > 0) {
+    if (evt.key == "Call" && columns.length > 0 && screenshot === false) {
       if (focusChart == false) {
         focus();
       } else if (focusChart) {
