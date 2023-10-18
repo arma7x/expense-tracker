@@ -24,7 +24,7 @@
     }
   ],
   "b2g_features": {
-    "version": "3.0.0",
+    "version": "3.0.1",
     "type": "web",
     "core": true,
     "default_locale": "en-US",
@@ -35,7 +35,6 @@
     "chrome": {
       "statusbar": "overlap"
     },
-    "origin": "expense-tracker",
     "permissions": {},
     "dependencies": {},
     "locales": {
